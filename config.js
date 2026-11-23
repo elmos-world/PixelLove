@@ -6,6 +6,6 @@ self.FIREBASE_CONFIG = {
   projectId: "fishies-14ec2",
   storageBucket: "fishies-14ec2.firebasestorage.app",
   messagingSenderId: "696368791397",
-  appId: "1:696368791397:web:1fcb3f409945377387ab8cD"
+  appId: "1:696368791397:web:1fcb3f409945377387ab8c"
 };
-self.VAPID_KEY = "BBmbdr6RMMFPfgs_wh8njbck0xJxGXVdI8Yp7dLIhcq7CNvKtBIe7uiBPbfcMtuJ8fzUaAZULN1HhI1oUN47-aoY";
+self.VAPID_KEY = "BBmbdr6RMMFPfgs_wh8njbck0xJxGXVdI8Yp7dLIhcq7CNvKtBIe7uiBPbfcMtuJ8fzUaAZULN1HhI1oUN47-ao";
