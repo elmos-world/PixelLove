@@ -3,5 +3,5 @@ window.QART={"marina":{"full":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox
 /* Characters with hand-made art. Stage art: add full2/pix2 (Stage II) and full3/pix3 (Stage III); missing stages fall back to the one before. */
 Object.assign(window.QART, {
   marina: {full:'<img src="quest/marina-full.jpg?v=1" alt="Marina, the mermaid princess">', pix:'<img src="quest/marina-pix.png?v=1" alt="" class="qpx">'},
-  mista: {full:'<img src="quest/mista-full.jpg?v=1" alt="Mista, the siren">', pix:'<img src="quest/mista-pix.png?v=1" alt="" class="qpx">'}
+  mista: {full:'<img src="quest/mista-full.jpg?v=1" alt="Mista, the siren">', pix:'<img src="quest/mista-pix.png?v=2" alt="" class="qpx">'}
 });
