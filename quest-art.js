@@ -8,5 +8,6 @@ Object.assign(window.QART, {
   sable: {full:'<img src="quest/sable-full.jpg?v=1" alt="Captain Sable, the pirate queen">', pix:'<img src="quest/sable-pix.png?v=1" alt="" class="qpx">'},
   kai: {full:'<img src="quest/kai-full.jpg?v=3" alt="Kai, the tide warlock">', pix:'<img src="quest/kai-pix.png?v=1" alt="" class="qpx">'},
   nerissa: {full:'<img src="quest/nerissa-full.jpg?v=1" alt="Nerissa, the sea witch">', pix:'<img src="quest/nerissa-pix.png?v=1" alt="" class="qpx">'},
+  kelpie: {full:'<img src="quest/kelpie-full.jpg?v=1" alt="Kelpie, the leafy sea dragon">', pix:'<img src="quest/kelpie-pix.png?v=1" alt="" class="qpx">'},
   empress: {full:'<img src="quest/empress-full.jpg?v=1" alt="The Coral Empress">', pix:'<img src="quest/empress-pix.png?v=1" alt="" class="qpx">'}
 });
