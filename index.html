@@ -506,12 +506,12 @@ dialog::backdrop{background:#3d376680}
 .cbopts button.txt{width:auto;padding:0 8px;font-size:13px}
 .cbopts button[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:1px}
 .advent{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
-.door{aspect-ratio:1;min-height:0!important;padding:0!important;border-radius:0!important;border:0!important;box-shadow:0 -3px 0 0 var(--accent),0 3px 0 0 var(--accent),-3px 0 0 0 var(--accent),3px 0 0 0 var(--accent)!important;margin:3px;font-family:var(--pixel);font-size:16px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 16%,#fff)}
-.door.lock{opacity:.4;cursor:default;box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)!important}
-.door.ready{background:#fff3b0;animation:none}
+.door{aspect-ratio:1;min-height:0!important;padding:0!important;border-radius:0!important;border:0!important;margin:3px;font-family:var(--pixel);font-size:16px;display:grid;place-items:center;color:#fff;background:var(--dc,#ff6b8f);box-shadow:0 -3px 0 0 #5b3d5e,0 3px 0 0 #5b3d5e,-3px 0 0 0 #5b3d5e,3px 0 0 0 #5b3d5e!important;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.door.lock{opacity:.45;cursor:default}
+.door.today{outline:3px dashed #ffd95a;outline-offset:3px}
 @media(prefers-reduced-motion:no-preference){.door.ready{animation:doorw 1.4s steps(2) infinite}}
 @keyframes doorw{50%{transform:translateY(-2px)}}
-.door.open{background:#fff}
+.door.open{background:#fff6ee!important;color:inherit}
 .door svg{width:60%;height:60%}
 .advmsg{margin:10px 0 0;font-family:"Gaegu",cursive;font-size:20px;color:var(--ink);min-height:1em}
 .fortune{display:flex;gap:14px;align-items:center}
@@ -636,8 +636,8 @@ body.crt h1,body.crt h2,body.crt .count,body.crt .clock b{text-shadow:0 0 6px co
     </div>
   </div>
 
-  <div class="card" id="adventCard" hidden>
-    <h2>Countdown calendar</h2>
+  <div class="card xmas" id="adventCard" hidden>
+    <h2>Advent calendar</h2>
     <p class="lede" id="adventLede"></p>
     <div class="advent" id="advent"></div>
     <p class="advmsg" id="adventMsg"></p>
@@ -1299,37 +1299,41 @@ function renderChibiEd(){
 }
 $('pfChibiOpts').addEventListener('click',e=>{ const b=e.target.closest('[data-cb]'); if(!b||!profDraft) return; const k=b.dataset.cb; profDraft.chibi={...profDraft.chibi,[k]:k==='style'?b.dataset.v:+b.dataset.v}; renderChibiEd(); paintChibis(); });
 
-/* countdown calendar: one little door a day before your visit */
-const ADVENT_MSGS=['Every day apart is one day closer 💞','Someone can’t wait to hug you','Count the sleeps: they’re getting fewer!','You + me = my favorite place','Practice your best airport run','Pack the cuddles first','Our next date is going to be so good','Thinking of you right now','Bring your warmest hugs','I already saved you the window seat in my heart','Soon: holding hands for real','Your person is counting too','Tiny door, big love','We’re basically almost there','Plan one silly photo together','Can’t wait to see your face in person'];
+/* advent calendar: a door a day from Dec 1 to Dec 24 */
+const ADVENT_MSGS=['Ho ho hold my hand soon 🎄','You’re the best gift I ever got','Cocoa date on a call tonight?','Same snow, same sky, same us ❄️','Bundle up, I’m sending a virtual hug','Wrapping up all my love for you','You make winter feel warm','Let’s watch the same holiday movie tonight','I wish you were under my mistletoe','Counting down the days with you','Sending you a sleigh-full of kisses','All I want for Christmas is you (obviously)','Our fish are wearing their festive best','You light me up like a twinkly tree','Snowflakes are cute, but you’re cuter','Hot chocolate, fuzzy socks, thinking of you'];
+const DOOR_ORDER=[7,19,3,22,12,1,16,9,24,5,14,20,2,11,18,6,23,10,15,4,21,8,13,17];
+const DOOR_COL=['#ff6b8f','#5fb88a','#6fb2d6','#ffb02e','#9b7fe0','#e8668f'];
 function adventInfo(){
-  const v=Date.parse(settings.visit||''); if(isNaN(v)) return null;
-  const vd=new Date(v); vd.setHours(0,0,0,0); const t0=new Date(); t0.setHours(0,0,0,0);
-  const left=Math.round((vd-t0)/DAY); if(left<1) return null;
-  return {key:vd.toISOString().slice(0,10), left, vd};
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth(), d=now.getDate();
+  if(m===10&&d>=15) return {key:'xmas-'+y, day:0};   // teaser from Nov 15
+  if(m===11&&d<=26) return {key:'xmas-'+y, day:Math.min(d,24), xmas:d>=25};
+  return null;
 }
-function doorPrize(info,n){ const r=hashR(info.key+'|'+n+'|'+me); if(r<.6) return {coins:[5,10,15][Math.floor(r/.2)]}; if(r<.92) return {msg:ADVENT_MSGS[Math.floor(hashR(n+info.key)*ADVENT_MSGS.length)]}; return {coins:25, pull:1}; }
+function doorPrize(info,n){ if(n===24) return {coins:50, pull:1}; const r=hashR(info.key+'|'+n+'|'+me); if(r<.55) return {coins:[5,10,15][Math.floor(r/.55*3)]}; if(r<.9) return {msg:ADVENT_MSGS[Math.floor(hashR(n+info.key)*ADVENT_MSGS.length)]}; return {coins:25, pull:1}; }
 const ICO_COIN='<svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="2" y="0" width="4" height="8" fill="#e8b02e"/><rect x="0" y="2" width="8" height="4" fill="#e8b02e"/><rect x="1" y="1" width="6" height="6" fill="#ffd95a"/><rect x="3" y="2" width="2" height="4" fill="#c98a12"/></svg>';
 const ICO_HEART='<svg viewBox="0 0 7 6" shape-rendering="crispEdges"><rect x="1" y="0" width="2" height="1" fill="#ff6b8f"/><rect x="4" y="0" width="2" height="1" fill="#ff6b8f"/><rect x="0" y="1" width="7" height="2" fill="#ff6b8f"/><rect x="1" y="3" width="5" height="1" fill="#ff6b8f"/><rect x="2" y="4" width="3" height="1" fill="#ff6b8f"/><rect x="3" y="5" width="1" height="1" fill="#ff6b8f"/></svg>';
-const ICO_GIFT='<svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="0" y="3" width="8" height="5" fill="#9fd3f5"/><rect x="0" y="2" width="8" height="2" fill="#cdb8f5"/><rect x="3" y="2" width="2" height="6" fill="#ff6b8f"/><rect x="1" y="0" width="2" height="2" fill="#ff6b8f"/><rect x="5" y="0" width="2" height="2" fill="#ff6b8f"/></svg>';
+const ICO_GIFT='<svg viewBox="0 0 8 8" shape-rendering="crispEdges"><rect x="0" y="3" width="8" height="5" fill="#5fb88a"/><rect x="0" y="2" width="8" height="2" fill="#7fdcaa"/><rect x="3" y="2" width="2" height="6" fill="#ff5f7e"/><rect x="1" y="0" width="2" height="2" fill="#ff5f7e"/><rect x="5" y="0" width="2" height="2" fill="#ff5f7e"/></svg>';
 function renderAdvent(){
   try{
     const card=$('adventCard'); if(!card) return; const info=adventInfo(); card.hidden=!info; if(!info) return;
-    const c=myCoins(), open=(c.advent&&c.advent.key===info.key&&Array.isArray(c.advent.open))?c.advent.open:[], who=otherName();
-    if(info.left>24){ const start=new Date(info.vd.getTime()-24*DAY); $('adventLede').textContent=`Your calendar opens on ${start.toLocaleDateString([], {month:'short',day:'numeric'})}: one little door a day until you see ${who}.`; }
-    else { const ready=[...Array(24)].map((_,i)=>24-i).filter(n=>n>=info.left&&!open.includes(n)).length; $('adventLede').textContent= ready?`${ready} door${ready>1?'s':''} ready to open. ${info.left} day${info.left>1?'s':''} until you see ${who}!`:`All caught up! Come back tomorrow. ${info.left} day${info.left>1?'s':''} to go.`; }
-    $('advent').innerHTML=[...Array(24)].map((_,i)=>{ const n=24-i, isOpen=open.includes(n), ready=n>=info.left;
-      if(isOpen){ const pz=doorPrize(info,n); return `<button type="button" class="door open" data-door="${n}" aria-label="Day ${n}, opened">${pz.pull?ICO_GIFT:pz.coins?ICO_COIN:ICO_HEART}</button>`; }
-      return `<button type="button" class="door ${ready?'ready':'lock'}" data-door="${n}" ${ready?'':'aria-disabled="true"'} aria-label="${n} days before, ${ready?'ready to open':'locked'}">${n}</button>`; }).join('');
+    const c=myCoins(), open=(c.advent&&c.advent.key===info.key&&Array.isArray(c.advent.open))?c.advent.open:[];
+    const ready=DOOR_ORDER.filter(n=>n<=info.day&&!open.includes(n)).length;
+    $('adventLede').textContent= info.day===0 ? 'Opens December 1: a little door each day until Christmas, for each of you.'
+      : info.xmas ? (ready?`Merry Christmas! 🎄 ${ready} door${ready>1?'s':''} still to open.`:'Merry Christmas! 🎄 You opened every door.')
+      : ready ? `${ready} door${ready>1?'s':''} ready to open. ${25-info.day} sleep${25-info.day>1?'s':''} until Christmas!` : `All caught up! Come back tomorrow. ${25-info.day} sleep${25-info.day>1?'s':''} until Christmas.`;
+    $('advent').innerHTML=DOOR_ORDER.map((n,i)=>{ const isOpen=open.includes(n), rd=n<=info.day;
+      if(isOpen){ const pz=doorPrize(info,n); return `<button type="button" class="door open" data-door="${n}" aria-label="December ${n}, opened">${pz.pull?ICO_GIFT:pz.coins?ICO_COIN:ICO_HEART}</button>`; }
+      return `<button type="button" class="door ${rd?'ready':'lock'} ${n===info.day&&!info.xmas?'today':''}" style="--dc:${DOOR_COL[i%DOOR_COL.length]}" data-door="${n}" aria-label="December ${n}, ${rd?'ready to open':'locked'}">${n}</button>`; }).join('');
   }catch(e){}
 }
 $('advent').addEventListener('click',e=>{
   const b=e.target.closest('[data-door]'); if(!b) return; const info=adventInfo(); if(!info) return; const n=+b.dataset.door, pz=doorPrize(info,n), c=myCoins();
   const open=(c.advent&&c.advent.key===info.key&&Array.isArray(c.advent.open))?c.advent.open:[];
-  const say=pz.pull?'A free prize pull! +25 coins':pz.coins?`+${pz.coins} coins`:pz.msg;
+  const say=n===24?'Christmas Eve surprise! +50 coins 🎁':pz.pull?'A free prize pull! +25 coins':pz.coins?`+${pz.coins} coins`:pz.msg;
   if(open.includes(n)){ $('adventMsg').textContent=say; return; }
-  if(n<info.left){ toast(`This door opens in ${n===info.left-1?'a day':info.left-n+' days'}`); return; }
+  if(n>info.day){ toast(info.day===0?'The calendar opens on December 1':`This door opens on December ${n}`); return; }
   writeCoins({...c, earned:c.earned+(pz.coins||0), advent:{key:info.key, open:[...open,n]}});
-  $('adventMsg').textContent=say; sfx(pz.coins?'coin':'unlock'); const r=b.getBoundingClientRect(); sparkle(r.left+r.width/2, r.top+r.height/2, 14); renderAdvent();
+  $('adventMsg').textContent=say; sfx(pz.coins?'coin':'unlock'); const r=b.getBoundingClientRect(); sparkle(r.left+r.width/2, r.top+r.height/2, 14); if(n===24) confetti(60); renderAdvent();
 });
 
 /* daily fortune capsule */
