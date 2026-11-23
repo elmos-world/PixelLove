@@ -7,5 +7,6 @@ Object.assign(window.QART, {
   henri: {full:'<img src="quest/henri-full.jpg?v=1" alt="Henri, the old sailor">', pix:'<img src="quest/henri-pix.png?v=1" alt="" class="qpx">'},
   sable: {full:'<img src="quest/sable-full.jpg?v=1" alt="Captain Sable, the pirate queen">', pix:'<img src="quest/sable-pix.png?v=1" alt="" class="qpx">'},
   kai: {full:'<img src="quest/kai-full.webp?v=2" alt="Kai, the tide warlock" class="qcut">', pix:'<img src="quest/kai-pix.png?v=1" alt="" class="qpx">'},
-  nerissa: {full:'<img src="quest/nerissa-full.jpg?v=1" alt="Nerissa, the sea witch">', pix:'<img src="quest/nerissa-pix.png?v=1" alt="" class="qpx">'}
+  nerissa: {full:'<img src="quest/nerissa-full.jpg?v=1" alt="Nerissa, the sea witch">', pix:'<img src="quest/nerissa-pix.png?v=1" alt="" class="qpx">'},
+  empress: {full:'<img src="quest/empress-full.jpg?v=1" alt="The Coral Empress">', pix:'<img src="quest/empress-pix.png?v=1" alt="" class="qpx">'}
 });
