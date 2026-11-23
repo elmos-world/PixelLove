@@ -642,7 +642,7 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .qstarters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
 .qstarters .qpix{width:80px}
 .qhero .qfull{position:relative;margin:-4px -4px 10px;aspect-ratio:1/1.05;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--ec) 30%,#fff),color-mix(in srgb,var(--ec) 60%,#2c2a4a) 120%);overflow:hidden;box-shadow:0 0 0 3px var(--line)}
-.qhero .qfull svg{width:100%;height:100%;display:block}.qhero .qfull img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 20%}.qpix img,.qsp img,.qbody img,.qfoe img,.qres img{width:100%;display:block;image-rendering:pixelated}.qcard.locked .qpix img{filter:brightness(0) opacity(.25)}.qhero .qfull.locked img{filter:brightness(0) opacity(.3)}
+.qhero .qfull svg{width:100%;height:100%;display:block}.qhero .qfull img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 20%}.qpix img,.qsp img,.qbody img,.qfoe img,.qres img{width:100%;display:block;image-rendering:pixelated}.qcard.locked .qpix img{filter:brightness(0) opacity(.25)}.qhero .qfull.locked img,.qhero .qfull.locked svg{filter:brightness(.3) blur(8px) saturate(.6)}
 .qhero .qfull.locked svg{filter:brightness(0) opacity(.3)}
 .qhname{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.qhname h2{margin:0}.qhname .sub{margin:0}
 .qtags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
@@ -651,7 +651,7 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .qstats div{background:#fff;padding:6px 4px;text-align:center;box-shadow:0 0 0 2px var(--line)}
 .qstats span{display:block;font-size:11px;color:var(--soft)}.qstats b{font-family:var(--pixel);font-size:16px}
 .qskill{background:#fff;padding:10px 12px;margin:10px 0;box-shadow:0 0 0 2px var(--line)}.qskill b{font-family:var(--pixel);color:var(--accent)}.qskill p{margin:4px 0}
-.qlv{margin-top:10px}.qasc{margin-top:10px;background:#fff;padding:8px 10px;box-shadow:0 0 0 2px var(--line)}.qup{font-style:normal;color:#5fb88a}
+.qlv{margin-top:10px}.qevtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:-2px 0 10px}.qevtabs button{min-height:34px!important;padding:4px!important;font-size:13px}.qevtabs button[aria-pressed="true"]{background:var(--accent);color:#fff}.qevtabs .lk{opacity:.6}.qfull{position:relative}.qlockmsg{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:#3d3762e6;color:#fff;font-family:var(--pixel);font-size:14px;padding:6px 12px;white-space:nowrap}.qlockmsg.soft{background:#ffffffd9;color:#3d3762}.qevo{background:linear-gradient(90deg,#fff8dc,#fff)!important}.qevb{font-style:normal;color:#f5b82e}.qasc{margin-top:10px;background:#fff;padding:8px 10px;box-shadow:0 0 0 2px var(--line)}.qup{font-style:normal;color:#5fb88a}
 .qsummon{text-align:center}
 .qclam{width:180px;margin:6px auto}.qclam svg{width:100%;display:block}
 .qclamtop{transform-origin:32px 24px;transition:transform .4s steps(4)}.qclam.open .qclamtop{transform:rotate(-24deg) translateY(-6px)}
@@ -676,7 +676,7 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .qu.hit .qbody{animation:qhit .3s steps(2)}
 @keyframes qlunge{50%{transform:translateX(30%)}}@keyframes qlungeR{50%{transform:translateX(-30%)}}
 @keyframes qcast{50%{transform:scale(1.15);filter:drop-shadow(0 0 6px #fff3a0) brightness(1.2)}}
-@keyframes qhit{50%{filter:brightness(2) saturate(0);transform:translateX(-4%)}}
+@keyframes qhit{50%{filter:brightness(1.5) drop-shadow(0 0 4px #fff);transform:translateX(-4%)}}
 .qnum{position:absolute;left:50%;top:0;transform:translate(-50%,0);font-family:var(--pixel);font-size:16px;font-weight:700;white-space:nowrap;pointer-events:none;text-shadow:2px 2px 0 #3d3762;animation:qnum .9s steps(6) forwards;z-index:4}
 .qnum.dmg{color:#fff}.qnum.crit{color:#ffd95a;font-size:19px}.qnum.adv{color:#ff9a45;font-size:18px}.qnum.heal{color:#5fd38a}.qnum.sh{color:#9fd3f5}.qnum.buf{color:#ffd95a}.qnum.st{color:#cdb8f5}
 @keyframes qnum{to{transform:translate(-50%,-140%);opacity:0}}
@@ -2666,7 +2666,7 @@ async function refreshPush(ask){
 $('openPush').addEventListener('click',()=>refreshPush(true));
 isSupported().then(ok=>{ if(ok) onMessage(getMessaging(app),m=>window.__toast?.(m.notification?.title||'New message')); }).catch(()=>{});
 </script>
-<script src="quest-art.js?v=2" defer></script>
-<script src="quest.js?v=2" defer></script>
+<script src="quest-art.js?v=3" defer></script>
+<script src="quest.js?v=3" defer></script>
 </body>
 </html>

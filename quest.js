@@ -72,23 +72,24 @@ const ZONES=[
   {n:'The Abyss',bg:['#cdbdf2','#9f8bd8'],sand:'#c7b9e6',mobs:['ghost','urchin','moray','puffer'],boss:'leviathan'}];
 
 /* ---------- player data ---------- */
-let Q=null, qLoaded=false, qScreen='home', qHero=null, qSaveT=null, partnerQ=null;
+let Q=null, qLoaded=false, qScreen='home', qHero=null, qArtView=null, qSaveT=null, partnerQ=null;
 const fresh=()=>({v:1, gold:500, dust:300, pearls:500, stage:0, team:[], roster:{}, idleAt:Date.now(), pulls:0, pity:0, starter:''});
-function normQ(d){ const q={...fresh(),...(d||{})}; q.roster=q.roster&&typeof q.roster==='object'?q.roster:{}; q.team=Array.isArray(q.team)?q.team.filter(id=>q.roster[id]).slice(0,5):[]; return q; }
+function normQ(d){ const q={...fresh(),...(d||{})}; q.roster=q.roster&&typeof q.roster==='object'?q.roster:{}; q.team=Array.isArray(q.team)?q.team.filter(id=>q.roster[id]).slice(0,5):[]; for(const id in q.roster){ const o=q.roster[id]; o.ev=Math.min(2,Math.max(0,o.ev|0)); o.lv=Math.min(o.lv||1,EVCAP[o.ev]); } return q; }
 function saveQ(){ if(!Q) return; try{ localStorage.setItem('pl-quest', JSON.stringify(Q)); }catch(e){} if(!PL().me) return; clearTimeout(qSaveT); qSaveT=setTimeout(()=>{ qSaveT=null; setDoc('quest/'+PL().me, Q, ()=>{}); }, 250); }
 function own(id){ return !!(Q&&Q.roster[id]); }
 
 /* ---------- stats ---------- */
-function heroStats(id, lv, st=1){
-  const h=HEROES[id], b=ROLE[h.ro][1], m=RAR[h.r][1]*(1+0.12*(lv-1))*(1+0.15*(st-1));
+const EVN=['Stage I','Stage II','Stage III'], EVCAP=[20,40,60], EVCOST=[{gold:3000,dust:2000},{gold:12000,dust:8000}];
+const capOf=o=>EVCAP[o.ev||0];
+function heroStats(id, lv, st=1, ev=0){
+  const h=HEROES[id], b=ROLE[h.ro][1], m=RAR[h.r][1]*(1+0.12*(lv-1))*(1+0.15*(st-1))*(1+0.25*ev);
   return {hp:Math.round(b.hp*m), atk:Math.round(b.atk*m), def:Math.round(b.def*m), spd:b.spd+Math.min(30,lv>>2)};
 }
 function monStats(id, lv){ const mo=MONSTERS[id], b=ROLE[mo.ro][1], m=(1+0.13*(lv-1)), bo=mo.boss?{hp:3.2,atk:1.35,def:1.3}:{hp:1,atk:1,def:1};
   return {hp:Math.round(b.hp*m*.92*bo.hp), atk:Math.round(b.atk*m*.9*bo.atk), def:Math.round(b.def*m*bo.def), spd:b.spd-4+Math.min(20,lv>>3)}; }
 const power=s=>Math.round(s.hp/8+s.atk*3+s.def*2.5+s.spd);
-function teamPower(){ return Q?Q.team.reduce((a,id)=>a+power(heroStats(id,Q.roster[id].lv,Q.roster[id].st)),0):0; }
+function teamPower(){ return Q?Q.team.reduce((a,id)=>a+power(heroStats(id,Q.roster[id].lv,Q.roster[id].st,Q.roster[id].ev||0)),0):0; }
 const lvCost=lv=>({gold:Math.round(20*Math.pow(lv,1.35)), dust:Math.round(15*Math.pow(lv,1.25))});
-const LV_CAP=60;
 
 /* ---------- stages ---------- */
 function stageInfo(s){ // s is 1-based
@@ -101,10 +102,10 @@ function idleRates(){ const c=Q.stage; return {gold:300+c*60, dust:220+c*45, pea
 function idlePending(){ if(!Q) return {gold:0,dust:0,pearls:0,hrs:0}; const hrs=Math.min(12,(Date.now()-(Q.idleAt||Date.now()))/36e5), r=idleRates(); return {gold:Math.floor(r.gold*hrs), dust:Math.floor(r.dust*hrs), pearls:Math.floor(r.pearls*hrs), hrs}; }
 
 /* ---------- battle simulation ---------- */
-function mkUnit(side,pos,id,lv,st,isMon){ const s=isMon?monStats(id,lv):heroStats(id,lv,st), d=isMon?MONSTERS[id]:HEROES[id];
-  return {u:side+'-'+pos, side, pos, id, mon:!!isMon, boss:!!d.boss, n:d.n, el:d.el, ro:d.ro, sk:d.sk, ...s, max:s.hp, en:isMon?0:20, gauge:Math.random()*300, shield:0, stun:0, buff:0, taunt:0}; }
+function mkUnit(side,pos,id,lv,st,isMon,ev){ const s=isMon?monStats(id,lv):heroStats(id,lv,st,ev||0), d=isMon?MONSTERS[id]:HEROES[id];
+  return {u:side+'-'+pos, side, pos, id, ev:ev||0, mon:!!isMon, boss:!!d.boss, n:d.n, el:d.el, ro:d.ro, sk:d.sk, ...s, max:s.hp, en:isMon?0:20, gauge:Math.random()*300, shield:0, stun:0, buff:0, taunt:0}; }
 function simulate(team, enemies){
-  const U=[...team.map((t,i)=>mkUnit(0,i,t.id,t.lv,t.st,false)), ...enemies.map((e,i)=>mkUnit(1,i,e.id,e.lv,1,true))], log=[];
+  const U=[...team.map((t,i)=>mkUnit(0,i,t.id,t.lv,t.st,false,t.ev)), ...enemies.map((e,i)=>mkUnit(1,i,e.id,e.lv,1,true))], log=[];
   const alive=s=>U.filter(u=>u.side===s&&u.hp>0), elm=(a,d)=>BEATS[a.el]===d.el?1.3:BEATS[d.el]===a.el?.8:1;
   const pickTarget=a=>{ const foes=alive(1-a.side); if(!foes.length) return null; const tt=foes.filter(f=>f.taunt>0); if(tt.length) return tt[0];
     if(a.ro==='assassin') return foes.reduce((m,f)=>f.hp/f.max<m.hp/m.max?f:m); if(a.ro==='mage') return foes[Math.floor(Math.random()*foes.length)];
@@ -136,7 +137,7 @@ function simulate(team, enemies){
       ev.en=U.map(u=>u.en); log.push(ev);
     }
   }
-  return {win:alive(0).length>0&&!alive(1).length, units:U.map(u=>({u:u.u,side:u.side,pos:u.pos,id:u.id,mon:u.mon,boss:u.boss,n:u.n,el:u.el,max:u.max})), log, start:U.map(u=>u.max)};
+  return {win:alive(0).length>0&&!alive(1).length, units:U.map(u=>({u:u.u,side:u.side,pos:u.pos,id:u.id,ev:u.ev,mon:u.mon,boss:u.boss,n:u.n,el:u.el,max:u.max})), log, start:U.map(u=>u.max)};
 }
 
 /* ---------- art ---------- */
@@ -144,13 +145,14 @@ function blobRows(seed){ // placeholder pixel creature until the real art is in
   const r=k=>hashR?hashR(seed+'|'+k):Math.random(), fin=r(1)<.5;
   return ['....BBBBBB......','..BBBBBBBBBB....','.BBBBBBBBBBBB.'+(fin?'FF':'..'),'BBBBBBBBWKBBBFFF','BBBBBBBBKKBBBBF.','BBBBBBBBBBBBBB..','.BBBBBLLLLBBB.'+(fin?'FF':'..'),'..BBBBBBBBBB....','....BBBBBB......'];
 }
-function art(id, kind){ // kind: 'pix' (battle sprite) or 'full' (big portrait)
-  const A=g.QART&&g.QART[id]; if(A&&A[kind]) return A[kind];
+function art(id, kind, ev){ // kind: 'pix' (battle sprite) or 'full' (big portrait); ev picks the evolution stage's art if it exists
+  const A=g.QART&&g.QART[id]; if(A){ for(let e=(ev===undefined?(Q&&Q.roster[id]?Q.roster[id].ev||0:0):ev); e>0; e--) if(A[kind+(e+1)]) return A[kind+(e+1)]; if(A[kind]) return A[kind]; }
   const d=HEROES[id]||MONSTERS[id]||{el:'tide'}, c=EL[d.el][1];
   const inner=pix(blobRows(id), {B:c,L:'#ffffff99',F:c,W:'#fff',K:'#2c2a4a'}, 1, 0, 0, '#3d3762');
   return kind==='pix' ? `<svg viewBox="-1 -1 18 11" shape-rendering="crispEdges">${inner}</svg>`
     : `<svg viewBox="-3 -4 22 17" shape-rendering="crispEdges"><rect x="-3" y="-4" width="22" height="17" fill="${c}22"/>${inner}<text x="8" y="12" font-size="1.6" text-anchor="middle" fill="#3d3762" font-family="sans-serif">art coming soon</text></svg>`;
 }
+const hasArt=(id,kind,e)=>!!(g.QART&&g.QART[id]&&g.QART[id][e?kind+(e+1):kind]);
 const elChip=e=>`<span class="qel" style="--ec:${EL[e][1]}">${EL[e][0]}</span>`;
 const stars=n=>`<span class="qstars r${n}">${'★'.repeat(n)}</span>`, plus=st=>st>1?`<span class="qplus">+${st-1}</span>`:'';
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e4?Math.round(n/1e3)+'K':String(n);
@@ -192,7 +194,7 @@ function renderHome(R){
   <div class="qnav"><button type="button" data-q="team">Team & creatures</button><button type="button" data-q="summon">Summon</button></div>`;
 }
 function heroCard(id, extra=''){ const h=HEROES[id], o=Q.roster[id];
-  return `<button type="button" class="qcard ${o?'':'locked'} r${h.r}" data-hero="${id}">${o&&Q.team.includes(id)?`<i class="qslot">${Q.team.indexOf(id)+1}</i>`:''}<div class="qpix">${art(id,'pix')}</div><b>${o?h.n:'???'}</b>${stars(h.r)}${o?`<span>Lv ${o.lv}${plus(o.st)}${o.cp&&o.st<5&&o.cp>=o.st?' <i class="qup">▲</i>':''}</span>`:''}${elChip(h.el)}${extra}</button>`; }
+  return `<button type="button" class="qcard ${o?'':'locked'} r${h.r}" data-hero="${id}">${o&&Q.team.includes(id)?`<i class="qslot">${Q.team.indexOf(id)+1}</i>`:''}<div class="qpix">${art(id,'pix')}</div><b>${o?h.n:'???'}</b>${stars(h.r)}${o?`<span>${o.ev?'<i class="qevb">'+'✦'.repeat(o.ev)+'</i> ':''}Lv ${o.lv}${plus(o.st)}${o.cp&&o.st<5&&o.cp>=o.st?' <i class="qup">▲</i>':''}</span>`:''}${elChip(h.el)}${extra}</button>`; }
 function renderTeam(R){
   const ids=Object.keys(HEROES).sort((a,b)=>(own(b)-own(a))||(HEROES[b].r-HEROES[a].r));
   R.innerHTML=topBar(true)+`<div class="card"><div class="qrow"><h3 style="margin:0">Your team</h3><div class="qpow">Power <b>${fmt(teamPower())}</b></div></div>
@@ -204,13 +206,16 @@ function statRow(l,v){ return `<div><span>${l}</span><b>${fmt(v)}</b></div>`; }
 function renderHero(R){
   const id=qHero, h=HEROES[id], o=Q.roster[id]; if(!h){ qScreen='team'; return render(); }
   if(!o){ R.innerHTML=topBar(true)+`<div class="card qhero"><div class="qfull locked">${art(id,'full')}</div><h2>???</h2><p class="lede">A ${RAR[h.r][0]} ${EL[h.el][0]} character you haven’t met yet. Find them by summoning.</p></div>`; return; }
-  const s=heroStats(id,o.lv,o.st), c=lvCost(o.lv), canLv=o.lv<LV_CAP&&Q.gold>=c.gold&&Q.dust>=c.dust, inT=Q.team.includes(id);
-  R.innerHTML=topBar(true)+`<div class="card qhero"><div class="qfull" style="--ec:${EL[h.el][1]}">${art(id,'full')}</div>
+  const ev=o.ev||0, cap=capOf(o), s=heroStats(id,o.lv,o.st,ev), c=lvCost(o.lv), canLv=o.lv<cap&&Q.gold>=c.gold&&Q.dust>=c.dust, inT=Q.team.includes(id);
+  const view=Math.min(qArtView===null?ev:qArtView,2), vLocked=view>ev, ec=EVCOST[ev], canEv=ev<2&&o.lv>=cap&&Q.gold>=ec.gold&&Q.dust>=ec.dust;
+  R.innerHTML=topBar(true)+`<div class="card qhero"><div class="qfull ${vLocked?'locked':''}" style="--ec:${EL[h.el][1]}">${art(id,'full',view)}${vLocked?`<span class="qlockmsg">🔒 Evolve to ${EVN[view]} to unlock</span>`:view>0&&!hasArt(id,'full',view)?'<span class="qlockmsg soft">New art for this stage is coming</span>':''}</div>
+    <div class="qevtabs">${EVN.map((n,i)=>`<button type="button" data-qart="${i}" aria-pressed="${view===i}" ${i>ev?'class="lk"':''}>${i>ev?'🔒 ':''}${n}</button>`).join('')}</div>
     <div class="qhname"><div><h2>${esc(h.n)}</h2><p class="sub">${esc(h.ti)}</p></div><div>${stars(h.r)}${plus(o.st)}</div></div>
-    <div class="qtags">${elChip(h.el)}<span class="qtag">${ROLE[h.ro][0]}</span><span class="qtag r${h.r}">${RAR[h.r][0]}</span><span class="qtag">Lv ${o.lv}/${LV_CAP}</span></div>
+    <div class="qtags">${elChip(h.el)}<span class="qtag">${ROLE[h.ro][0]}</span><span class="qtag r${h.r}">${RAR[h.r][0]}</span><span class="qtag">${EVN[ev]}</span><span class="qtag">Lv ${o.lv}/${cap}</span></div>
     <div class="qstats">${statRow('Health',s.hp)}${statRow('Attack',s.atk)}${statRow('Defense',s.def)}${statRow('Speed',s.spd)}${statRow('Power',power(s))}</div>
     <div class="qskill"><b>✦ ${esc(h.sk.n)}</b><p>${esc(h.sk.t)}</p><span class="sub" style="font-size:13px">Strong against ${EL[BEATS[h.el]][0]}. Weak to ${EL[Object.keys(BEATS).find(k=>BEATS[k]===h.el)][0]}.</span></div>
-    <div class="qrow qlv"><div class="qcurs">${cur('gold',c.gold)}${cur('dust',c.dust)}</div><button type="button" class="main" data-q="levelup" ${canLv?'':'disabled'}>${o.lv>=LV_CAP?'Max level':'Level up'}</button></div>
+    <div class="qrow qlv"><div class="qcurs">${cur('gold',c.gold)}${cur('dust',c.dust)}</div><button type="button" class="main" data-q="levelup" ${canLv?'':'disabled'}>${o.lv>=cap?(ev<2?'Evolve to level up':'Max level'):'Level up'}</button></div>
+    ${ev<2?`<div class="qrow qasc qevo"><div><b>Evolve to ${EVN[ev+1]}</b><p class="sub" style="font-size:13px;margin:2px 0 0">${o.lv>=cap?'Ready! ':`Reach level ${cap} first. `}Unlocks new art, +25% stats and a level cap of ${EVCAP[ev+1]}.</p><div class="qcurs" style="margin-top:4px">${cur('gold',ec.gold)}${cur('dust',ec.dust)}</div></div><button type="button" class="main" data-q="evolve" ${canEv?'':'disabled'}>Evolve</button></div>`:'<div class="qrow qasc qevo"><b>Fully evolved: Stage III ✦</b></div>'}
     <div class="qrow qasc"><div><b>Upgrade with copies</b><p class="sub" style="font-size:13px;margin:2px 0 0">${o.st>=5?'Fully upgraded: +4':`+${o.st} needs ${o.st} cop${o.st>1?'ies':'y'} · you have ${o.cp||0}. Each + gives 15% more stats.`}</p></div><button type="button" class="main" data-q="ascend" ${o.st<5&&(o.cp||0)>=o.st?'':'disabled'}>${o.st>=5?'Maxed':'Upgrade'}</button></div>
     <button type="button" class="${inT?'ghost':'main'} qbig" data-q="toggleteam">${inT?'Remove from team':Q.team.length>=5?'Team is full (5)':'Add to team'}</button></div>`;
 }
@@ -226,7 +231,8 @@ function renderSummon(R, results){
 function act(k){
   if(k==='home'||k==='team'||k==='summon'){ qScreen=k; render(); window.scrollTo(0,0); return; }
   if(k==='collect'){ const p=idlePending(); if(p.gold<1) return; Q.gold+=p.gold; Q.dust+=p.dust; Q.pearls+=p.pearls; Q.idleAt=Date.now(); saveQ(); render(); sfx('coin'); sparkle(); toast(`Collected ${p.gold} gold, ${p.dust} dust and ${p.pearls} pearls`); return; }
-  if(k==='levelup'){ const o=Q.roster[qHero], c=lvCost(o.lv); if(o.lv>=LV_CAP||Q.gold<c.gold||Q.dust<c.dust) return; Q.gold-=c.gold; Q.dust-=c.dust; o.lv++; saveQ(); render(); sfx('unlock'); sparkle(innerWidth/2,innerHeight/3,10); return; }
+  if(k==='levelup'){ const o=Q.roster[qHero], c=lvCost(o.lv); if(o.lv>=capOf(o)||Q.gold<c.gold||Q.dust<c.dust) return; Q.gold-=c.gold; Q.dust-=c.dust; o.lv++; saveQ(); render(); sfx('unlock'); sparkle(innerWidth/2,innerHeight/3,10); return; }
+  if(k==='evolve'){ const o=Q.roster[qHero], ev=o.ev||0, c=EVCOST[ev]; if(ev>=2||o.lv<capOf(o)||Q.gold<c.gold||Q.dust<c.dust) return; Q.gold-=c.gold; Q.dust-=c.dust; o.ev=ev+1; qArtView=null; saveQ(); render(); window.scrollTo(0,0); sfx('unlock'); setTimeout(()=>sfx('unlock'),300); confetti(100); toast(`${HEROES[qHero].n} evolved to ${EVN[o.ev]}!`); return; }
   if(k==='ascend'){ const o=Q.roster[qHero]; if(o.st>=5||(o.cp||0)<o.st) return; o.cp-=o.st; o.st++; saveQ(); render(); sfx('unlock'); confetti(40); toast(`${HEROES[qHero].n} is now +${o.st-1}!`); return; }
   if(k==='toggleteam'){ const i=Q.team.indexOf(qHero); if(i>=0) Q.team.splice(i,1); else if(Q.team.length<5) Q.team.push(qHero); else return; saveQ(); render(); sfx('tap'); return; }
   if(k==='sum1'||k==='sum10') return summon(k==='sum1'?1:10);
@@ -245,11 +251,11 @@ function summon(n){
 /* ---------- battle screen ---------- */
 let BT=null;
 function startBattle(){
-  const st=stageInfo(Q.stage+1), team=Q.team.map(id=>({id, lv:Q.roster[id].lv, st:Q.roster[id].st}));
+  const st=stageInfo(Q.stage+1), team=Q.team.map(id=>({id, lv:Q.roster[id].lv, st:Q.roster[id].st, ev:Q.roster[id].ev||0}));
   const res=simulate(team, st.enemies); BT={st, res, i:0, speed:1, timer:null};
   const ov=document.createElement('div'); ov.className='qbattle'; ov.id='qBattle';
   const slot=u=>{ const pos=u.side===0?[[34,38],[34,68],[12,24],[12,53],[12,82]][u.pos]:[[66,38],[66,68],[88,24],[88,53],[88,82]][u.pos];
-    return `<div class="qu ${u.side?'foe':''} ${u.boss?'boss':''}" id="qu-${u.u}" style="left:${pos[0]}%;top:${pos[1]}%"><div class="qhp"><i style="width:100%"></i><em></em></div><div class="qen"><i style="width:${u.side?0:20}%"></i></div><div class="qbody">${art(u.id,'pix')}</div></div>`; };
+    return `<div class="qu ${u.side?'foe':''} ${u.boss?'boss':''}" id="qu-${u.u}" style="left:${pos[0]}%;top:${pos[1]}%"><div class="qhp"><i style="width:100%"></i><em></em></div><div class="qen"><i style="width:${u.side?0:20}%"></i></div><div class="qbody">${art(u.id,'pix',u.ev)}</div></div>`; };
   ov.innerHTML=`<div class="qarena" style="--z1:${st.zone.bg[0]};--z2:${st.zone.bg[1]};--zs:${st.zone.sand}"><div class="qbhead"><b>${st.zone.n} · ${st.label}</b><span><button type="button" id="qSpeed">1×</button><button type="button" id="qSkip">Skip</button></span></div>
     ${res.units.map(slot).join('')}<div class="qbanner" id="qBanner"></div></div><div class="qbres" id="qRes" hidden></div>`;
   document.body.appendChild(ov); sfx('tap');
@@ -291,7 +297,8 @@ function finish(){
 document.addEventListener('click',e=>{
   const R=root(); if(!R||!R.contains(e.target)) return;
   const s=e.target.closest('[data-starter]'); if(s){ const id=s.dataset.starter; Q=normQ(Q); Q.starter=id; Q.roster[id]={lv:1,st:1}; Q.team=[id]; Q.idleAt=Date.now(); saveQ(); sfx('unlock'); confetti(50); toast(`${HEROES[id].n} joined you! Summon more friends at the Pearl shrine.`); qScreen='home'; render(); return; }
-  const h=e.target.closest('[data-hero]'); if(h){ qHero=h.dataset.hero; qScreen='hero'; render(); window.scrollTo(0,0); return; }
+  const ar=e.target.closest('[data-qart]'); if(ar){ qArtView=+ar.dataset.qart; render(); return; }
+  const h=e.target.closest('[data-hero]'); if(h){ qHero=h.dataset.hero; qArtView=null; qScreen='hero'; render(); window.scrollTo(0,0); return; }
   const q=e.target.closest('[data-q]'); if(q&&!q.disabled) act(q.dataset.q);
 });
 setInterval(()=>{ if(qScreen==='home'&&location.hash==='#quest'&&Q&&Q.starter&&!$('qBattle')) render(); }, 30000);
