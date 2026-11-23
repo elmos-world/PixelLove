@@ -2010,6 +2010,12 @@ onAuthStateChanged(auth, async u=>{
 });
 
 /* push notifications */
+// iPhone needs the notification worker fully started before it hands out a push code
+function swActive(reg){
+  if(reg.active) return Promise.resolve();
+  const w=reg.installing||reg.waiting; if(!w) return navigator.serviceWorker.ready.then(()=>{});
+  return new Promise(res=>{ const t=setTimeout(res,10000); w.addEventListener('statechange',()=>{ if(w.state==='activated'){ clearTimeout(t); res(); } }); });
+}
 async function refreshPush(ask){
   const say=t=>{ if(ask) window.__toast?.(t); };
   try{
@@ -2018,10 +2024,13 @@ async function refreshPush(ask){
       say(ios&&!standalone?'On iPhone, add this app to your Home Screen first, then open it from there to turn on notifications.':'This browser can’t do notifications.'); return; }
     if(!self.VAPID_KEY||/PASTE/.test(self.VAPID_KEY)){ say('Add your VAPID key to config.js first (see SETUP.md).'); return; }
     if(Notification.permission!=='granted'){ if(!ask) return; const p=await Notification.requestPermission(); if(p!=='granted'){ say('Notifications are blocked. You can allow them in your phone’s settings.'); return; } }
-    const reg=await navigator.serviceWorker.register('./firebase-messaging-sw.js',{scope:'./'});
-    const token=await getToken(getMessaging(app),{vapidKey:self.VAPID_KEY, serviceWorkerRegistration:reg});
+    const reg=await navigator.serviceWorker.register('./firebase-messaging-sw.js',{scope:'./', updateViaCache:'none'});
+    await swActive(reg);
+    let token;
+    try{ token=await getToken(getMessaging(app),{vapidKey:self.VAPID_KEY, serviceWorkerRegistration:reg}); }
+    catch(e1){ await new Promise(r=>setTimeout(r,1500)); await swActive(reg); token=await getToken(getMessaging(app),{vapidKey:self.VAPID_KEY, serviceWorkerRegistration:reg}); }
     if(token){ await setDoc(doc(fs,'pushTokens',uid),{tokens:arrayUnion(token)},{merge:true}); say('Notifications are on!'); }
-  }catch(e){ console.warn(e); const c=String(e&&(e.code||e.message)||'unknown').replace(/^messaging\//,'').slice(0,80); say(/vapid|applicationServerKey|subscribe/i.test(c)?`Couldn’t turn on notifications: the VAPID key in config.js doesn’t match your Firebase project (${c}).`:/installations|app-id|appId|invalid-argument/i.test(c)?`Couldn’t turn on notifications: check appId in config.js (${c}).`:`Couldn’t turn on notifications (${c}).`); }
+  }catch(e){ console.warn(e); const c=String(e&&(typeof e.code==='string'?e.code:[e.name,e.message].filter(Boolean).join(': '))||'unknown').replace(/^messaging\//,'').slice(0,120); say(/vapid|applicationServerKey|subscribe/i.test(c)?`Couldn’t turn on notifications: the VAPID key in config.js doesn’t match your Firebase project (${c}).`:/installations|app-id|appId|invalid-argument/i.test(c)?`Couldn’t turn on notifications: check appId in config.js (${c}).`:`Couldn’t turn on notifications (${c}).`); }
 }
 $('openPush').addEventListener('click',()=>refreshPush(true));
 isSupported().then(ok=>{ if(ok) onMessage(getMessaging(app),m=>window.__toast?.(m.notification?.title||'New message')); }).catch(()=>{});
