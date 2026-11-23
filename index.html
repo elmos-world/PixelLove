@@ -2021,7 +2021,7 @@ async function refreshPush(ask){
     const reg=await navigator.serviceWorker.register('./firebase-messaging-sw.js',{scope:'./'});
     const token=await getToken(getMessaging(app),{vapidKey:self.VAPID_KEY, serviceWorkerRegistration:reg});
     if(token){ await setDoc(doc(fs,'pushTokens',uid),{tokens:arrayUnion(token)},{merge:true}); say('Notifications are on!'); }
-  }catch(e){ console.warn(e); say('Couldn’t turn on notifications. Try again in a moment.'); }
+  }catch(e){ console.warn(e); const c=String(e&&(e.code||e.message)||'unknown').replace(/^messaging\//,'').slice(0,80); say(/vapid|applicationServerKey|subscribe/i.test(c)?`Couldn’t turn on notifications: the VAPID key in config.js doesn’t match your Firebase project (${c}).`:/installations|app-id|appId|invalid-argument/i.test(c)?`Couldn’t turn on notifications: check appId in config.js (${c}).`:`Couldn’t turn on notifications (${c}).`); }
 }
 $('openPush').addEventListener('click',()=>refreshPush(true));
 isSupported().then(ok=>{ if(ok) onMessage(getMessaging(app),m=>window.__toast?.(m.notification?.title||'New message')); }).catch(()=>{});
