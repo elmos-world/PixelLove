@@ -93,6 +93,10 @@ textarea{min-height:84px;resize:vertical}
 .play a{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;background:var(--card);color:var(--ink);font-weight:800;font-size:14px;text-decoration:none;border:2px solid var(--line)}
 .play a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .play a svg{width:18px;height:18px;flex:none}
+.play button.here{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;font-size:14px}
+.player{margin-top:10px;background:var(--card);padding:4px;box-shadow:var(--pxb,0 0 0 2px var(--line))}
+.player iframe{display:block;width:100%;border:0;background:transparent}
+.player small{display:block;font-size:12px;color:var(--soft);padding:4px 4px 2px}
 .song b{display:block;font-family:"Pixelify Sans","Baloo 2",system-ui,sans-serif;font-size:18px;line-height:1.15;overflow-wrap:anywhere}
 .song span{font-size:14px;color:var(--soft);display:block}
 .song p{margin:6px 0 0;font-size:15px;overflow-wrap:anywhere}
@@ -703,7 +707,7 @@ dialog::backdrop{background:#3d376680}
   </div>
 <div class="card">
   <h2>Song of the day</h2>
-  <p class="lede">Pick a song for your person. It shows up on their screen, ready to play. Paste the song's share link to open that exact song.</p>
+  <p class="lede">Pick a song for your person. It shows up on their screen, ready to play. Paste the song's Spotify or Apple Music share link and it plays right here in the app.</p>
   <div class="songs" id="songs"></div>
   <form id="songForm" class="row"><input id="songTitle" maxlength="80" placeholder="Song and artist" aria-label="Song and artist"><input id="songLink" maxlength="300" inputmode="url" placeholder="Spotify or Apple Music link (optional)" aria-label="Spotify or Apple Music link"><button type="submit">Share</button></form>
 </div>
@@ -903,15 +907,28 @@ function musicLink(raw){
 }
 const SPOT='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1DB954"/><path d="M6.5 9.3c3.8-1.1 8-.8 11.2 1.1M7.2 12.4c3.1-.9 6.6-.6 9.3 1M7.8 15.3c2.5-.7 5.2-.5 7.4.8" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>';
 const APPLE='<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#fa2d48"/><path d="M15.5 6v8.6a2.2 2.2 0 1 1-1.4-2V8.4l-4.6 1v6.3a2.2 2.2 0 1 1-1.4-2V7.6z" fill="#fff"/></svg>';
-function playLinks(x){
-  const q=encodeURIComponent(x.title), l=musicLink(x.link), isS=l&&!/music\.apple\.com/.test(l), isA=l&&/music\.apple\.com/.test(l);
+function embedUrl(raw){
+  const l=musicLink(raw); if(!l) return null; const u=new URL(l);
+  if(u.hostname==='open.spotify.com'){ const m=u.pathname.match(/^\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode|artist)\/([A-Za-z0-9]+)/); return m?{src:`https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator`, h:m[1]==='track'||m[1]==='episode'?152:352, svc:'Spotify'}:null; }
+  if(u.hostname==='music.apple.com'){ const song=u.searchParams.has('i')||/\/song\//.test(u.pathname); return {src:`https://embed.music.apple.com${u.pathname}${u.search}`, h:song?175:450, svc:'Apple Music'}; }
+  return null;
+}
+let openPlayer='';
+function playLinks(x,who){
+  const q=encodeURIComponent(x.title), l=musicLink(x.link), isS=l&&!/music\.apple\.com/.test(l), isA=l&&/music\.apple\.com/.test(l), em=embedUrl(x.link);
   const sp=isS?l:`https://open.spotify.com/search/${q}`, am=isA?l:`https://music.apple.com/us/search?term=${q}`;
-  return `<div class="play"><a href="${esc(sp)}" target="_blank" rel="noopener noreferrer">${SPOT}Play on Spotify</a><a href="${esc(am)}" target="_blank" rel="noopener noreferrer">${APPLE}Play on Apple Music</a></div>`;
+  const here=em?`<button type="button" class="here" data-player="${who}" aria-expanded="${openPlayer===who}">${openPlayer===who?'■ Hide player':'▶ Play here'}</button>`:'';
+  const player=em&&openPlayer===who?`<div class="player"><iframe src="${esc(em.src)}" height="${em.h}" title="${esc(x.title)} on ${em.svc}" allow="autoplay *; encrypted-media *; clipboard-write; fullscreen; picture-in-picture" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" loading="lazy"></iframe><small>Sign in to ${em.svc} in the player for the full song. Otherwise it plays a preview.</small></div>`:'';
+  return `<div class="play">${here}${isS||!isA?`<a href="${esc(sp)}" target="_blank" rel="noopener noreferrer">${SPOT}${isS?'Open in Spotify':'Find on Spotify'}</a>`:''}${isA||!isS?`<a href="${esc(am)}" target="_blank" rel="noopener noreferrer">${APPLE}${isA?'Open in Apple Music':'Find on Apple Music'}</a>`:''}</div>${player}`;
 }
 function renderSongs(){
   const [a,b]=sides(), other=me===b?a:b, them=otherName();
-  const card=(label,x,empty)=>`<div class="song"><span>${esc(label)}</span>${x?`<b>${esc(x.title)}</b><span>${ago(x.at)}</span>${playLinks(x)}`:`<b>${esc(empty)}</b>`}</div>`;
-  $('songs').innerHTML = card(`${them} picked for you`, songs[other], 'Nothing yet') + card(`You picked for ${them}`, songs[me], 'Pick one below');
+  const card=(label,x,empty,who)=>`<div class="song"><span>${esc(label)}</span>${x?`<b>${esc(x.title)}</b><span>${ago(x.at)}</span>${playLinks(x,who)}`:`<b>${esc(empty)}</b>`}</div>`;
+  const key=JSON.stringify([them,openPlayer,songs[other]||0,songs[me]||0,Math.floor(Date.now()/6e4)]);
+  if(renderSongs.key===key) return; // don't restart a playing song on unrelated updates
+  if(openPlayer && renderSongs.key && document.querySelector('#songs iframe') && JSON.parse(renderSongs.key).slice(0,4).join()===JSON.parse(key).slice(0,4).join()) return;
+  renderSongs.key=key;
+  $('songs').innerHTML = card(`${them} picked for you`, songs[other], 'Nothing yet','them') + card(`You picked for ${them}`, songs[me], 'Pick one below','me');
 }
 /* hellos read right on each screen: "You miss Dylan" / "Thorunn misses you" */
 function helloText(t, html){
@@ -961,6 +978,7 @@ document.querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>
 }));
 $('noteForm').addEventListener('submit',e=>{ e.preventDefault(); const t=$('noteText').value.trim(); if(!t) return; $('noteText').value=''; add('notes',{text:t, by:me, at:Date.now()}); earn('note'); });
 $('ideaForm').addEventListener('submit',e=>{ e.preventDefault(); const t=$('ideaText').value.trim(); if(!t) return; $('ideaText').value=''; add('ideas',{text:t, done:false, by:me, at:Date.now()}); earn('idea'); });
+$('songs').addEventListener('click',e=>{ const b=e.target.closest('[data-player]'); if(!b) return; openPlayer=openPlayer===b.dataset.player?'':b.dataset.player; renderSongs.key=''; renderSongs(); });
 $('songForm').addEventListener('submit',e=>{ e.preventDefault(); const t=$('songTitle').value.trim(); if(!t) return; const raw=$('songLink').value.trim(), link=musicLink(raw); if(raw&&!link){ toast('That link isn’t from Spotify or Apple Music'); return; } const body={title:t, link:link||'', at:Date.now()}; $('songTitle').value=''; $('songLink').value=''; setDoc('songs/'+me, body, ()=>{ songs[me]=body; }); earn('song'); });
 $('gn').addEventListener('click',()=>{ if(nightOn(me)) delDoc('nights/'+me, ()=>{ delete nights[me]; }); else { const body={at:Date.now()}; setDoc('nights/'+me, body, ()=>{ nights[me]=body.at; }); earn('goodnight'); } });
 
@@ -1266,9 +1284,27 @@ function skyFor(tz){
   const city=tz.split('/').pop().replace(/_/g,' ');
   return {phase, city, svg:`<svg viewBox="0 0 200 110"><defs><linearGradient id="sk${G[0].slice(1)}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${G[0]}"/><stop offset="1" stop-color="${G[1]}"/></linearGradient></defs><rect width="200" height="110" fill="url(#sk${G[0].slice(1)})"/>${body}<path d="M0 92 q50 -14 100 0 t100 0 V110 H0z" fill="${phase==='Night'?'#7e76c4':'#ffd3e3'}"/></svg>`};
 }
+/* where each of you is: live location (if fresh), then home pin, then time zone */
+const placeCache={}; try{ Object.assign(placeCache, JSON.parse(localStorage.getItem('pl-places')||'{}')); }catch(e){}
+const placeAsk={};
+function placeKey(c){ return c.lat.toFixed(2)+','+c.lng.toFixed(2); }
+function lookUpPlace(c){
+  const key=placeKey(c); if(placeCache[key]||placeAsk[key]) return; placeAsk[key]=1;
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat=${c.lat}&lon=${c.lng}`,{headers:{'Accept-Language':'en'}})
+    .then(r=>r.json()).then(j=>{ const a=j.address||{}, town=a.city||a.town||a.village||a.hamlet||a.municipality||a.county, st=a.state||a.region||a.country;
+      if(town||st){ placeCache[key]=[town,st].filter(Boolean).join(', '); try{ localStorage.setItem('pl-places', JSON.stringify(placeCache)); }catch(e){} renderSkies(); } })
+    .catch(()=>{}).finally(()=>{ setTimeout(()=>{ delete placeAsk[key]; }, 6e5); });
+}
+function placeOf(k, tz){
+  const [a,b]=sides(), L_=(typeof locs!=='undefined'&&locs[k==='A'?a:b])||{};
+  const c=liveFresh(L_.live)?L_.live:(L_.home&&L_.home.lat!=null?L_.home:null);
+  if(c){ const hit=placeCache[placeKey(c)]; if(hit) return hit; lookUpPlace(c); if(c.label) return c.label.split(',').slice(0,1).join('').trim(); }
+  return tz.split('/').pop().replace(/_/g,' ');
+}
 function renderSkies(){
+  if(!$('skies')) return;
   $('skies').innerHTML=['A','B'].map(k=>{ const tz=settings['tz'+k]||myTz, s=skyFor(tz);
-    return `<div class="sky">${s.svg}<b>${esc(s.phase)} for ${esc(sideName(k))}</b><span>${esc(timeIn(tz))} in ${esc(s.city)}</span></div>`; }).join('');
+    return `<div class="sky">${s.svg}<b>${esc(s.phase)} for ${esc(sideName(k))}</b><span>${esc(timeIn(tz))} in ${esc(placeOf(k,tz))}</span></div>`; }).join('');
 }
 
 /* message in a bottle */
@@ -1889,7 +1925,7 @@ renderAll();
   db.doc('shared/tank').onSnapshot(s=>{ tank=s.exists?s.data():null; paintTank(); renderShop(); renderGacha(); paintFish(); }, err);
   db.collection('coins').onSnapshot(s=>{ coins=byId(s); renderCoins(); renderProfile(); }, err);
   db.collection('profiles').onSnapshot(s=>{ profiles=byId(s); renderAll(); }, err);
-  db.collection('locations').onSnapshot(s=>{ locs=byId(s); renderMap(); }, err);
+  db.collection('locations').onSnapshot(s=>{ locs=byId(s); renderMap(); renderSkies(); }, err);
   try{ if(localStorage.getItem('tlf-live')==='on') startLive(true); }catch(e){}
   db.collection('bottles').orderBy('at','desc').limit(100).onSnapshot(s=>{ bottles=rows(s); renderBottles(); resolveNames(bottles.map(b=>b.by)); }, err);
   db.doc('shared/pet').onSnapshot(s=>{ pet=s.exists?s.data():null; renderPet(); }, err);
