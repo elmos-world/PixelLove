@@ -1,7 +1,7 @@
 /* Paste your Firebase settings here (SETUP.md, steps 1 and 4 show where to find them).
    These values are not secret: your Firestore rules are what keep the app private to you two. */
 self.FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCeHZ1uv5AgcadsBHdESXUIrrlS-VHEPl8Y",
+  apiKey: "AIzaSyCeHZ1uv5AgcadsBHdESXUIrrlS-VHEPl8",
   authDomain: "fishies-14ec2.firebaseapp.com",
   projectId: "fishies-14ec2",
   storageBucket: "fishies-14ec2.firebasestorage.app",
