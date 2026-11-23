@@ -1949,7 +1949,12 @@ const assets={upload:async blob=>{ let url; try{ url=await toSmallJpeg(blob); }c
 let creating=false;
 $('gSwitch').addEventListener('click',()=>{ creating=!creating; $('gName').hidden=!creating; $('gGo').textContent=creating?'Create account':'Sign in';
   $('gSwitch').textContent=creating?'Already have an account? Sign in':'New here? Create an account'; $('gPass').autocomplete=creating?'new-password':'current-password'; $('gErr').textContent=''; });
-const errText=c=>({'auth/invalid-credential':'That email and password don’t match.','auth/user-not-found':'No account with that email yet. Create one instead.','auth/wrong-password':'That password isn’t right.','auth/email-already-in-use':'That email already has an account. Sign in instead.','auth/weak-password':'Use at least 6 characters.','auth/invalid-email':'That email doesn’t look right.','auth/too-many-requests':'Too many tries. Wait a minute and try again.','auth/network-request-failed':'No connection. Check your internet.'}[c]||'Something went wrong. Try again.');
+const errText=c=>({'auth/invalid-credential':'That email and password don’t match.','auth/user-not-found':'No account with that email yet. Create one instead.','auth/wrong-password':'That password isn’t right.','auth/email-already-in-use':'That email already has an account. Sign in instead.','auth/weak-password':'Use at least 6 characters.','auth/invalid-email':'That email doesn’t look right.','auth/too-many-requests':'Too many tries. Wait a minute and try again.','auth/network-request-failed':'No connection. Check your internet.',
+  'auth/unauthorized-domain':'This website isn’t allowed to sign in yet. In Firebase, go to Authentication → Settings → Authorized domains and add '+location.hostname+'.',
+  'auth/operation-not-allowed':'Email sign-in is turned off. In Firebase, go to Authentication → Sign-in method and turn on Email/Password.',
+  'auth/configuration-not-found':'Sign-in isn’t set up yet. In Firebase, open Authentication, click Get started, then turn on Email/Password.',
+  'auth/invalid-api-key':'The apiKey in config.js doesn’t look right. Copy it again from Firebase project settings.',
+  'auth/api-key-not-valid.-please-pass-a-valid-api-key.':'The apiKey in config.js doesn’t look right. Copy it again from Firebase project settings.'}[c]||('Something went wrong ('+(c||'unknown error')+'). Try again.'));
 $('gateForm').addEventListener('submit',async e=>{ e.preventDefault(); $('gErr').textContent=''; $('gGo').disabled=true;
   const em=$('gEmail').value.trim(), pw=$('gPass').value;
   try{ await setPersistence(auth,browserLocalPersistence);
