@@ -7,7 +7,7 @@ A cozy, pastel, pixel-arcade-style app for a long-distance couple (Thorunn and D
 | Path | What it is |
 |---|---|
 | `index.html` | The whole app: HTML, CSS and JS in one file. This is what gets edited most. |
-| `config.js` | Firebase web config and VAPID key (`self.FIREBASE_CONFIG`, `self.VAPID_KEY`). Not secret. |
+| `config.js` | Firebase web config and VAPID key (`self.FIREBASE_CONFIG`, `self.VAPID_KEY`). Not secret. Loaded as `config.js?v=N` in `index.html` and `firebase-messaging-sw.js`; bump `N` in both whenever it changes so phones don't keep an old copy. |
 | `firebase-messaging-sw.js` | Service worker that receives push notifications. |
 | `manifest.webmanifest`, `icon-*.png`, `apple-touch-icon.png` | Home-screen app metadata and pixel-goldfish icons. |
 | `firebase/firestore.rules` | Locks all data to the two allowed emails (`isUs()`). |
