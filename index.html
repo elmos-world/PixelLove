@@ -655,17 +655,31 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 #holiDlg .letterpaper p{white-space:pre-wrap}
 .holienv{display:grid;place-items:center;margin-bottom:8px}.holienv svg{width:96px;height:auto}
 /* Sunday postcards */
-.postcard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);background:#fffaf2;box-shadow:0 0 0 3px #fff,0 0 0 6px color-mix(in srgb,var(--pxb) 45%,transparent),6px 10px 0 4px #3d37621a;margin:8px 4px 12px;transform:rotate(-.6deg)}
-@media(max-width:520px){.postcard{grid-template-columns:minmax(0,1fr)}}
-.pc-pic{min-height:170px;background:#cdeeff;overflow:hidden}
-.pc-pic img,.pc-pic svg{display:block;width:100%;height:100%;object-fit:cover;min-height:170px}
-.pc-txt{position:relative;padding:64px 16px 14px 18px;border-left:2px dashed #e2cdb8;font-family:"Gaegu",cursive;color:#4a3f6b}
-@media(max-width:520px){.pc-txt{border-left:0;border-top:2px dashed #e2cdb8}}
-.pc-txt h3{margin:0 0 6px;font-size:16px;font-family:var(--pixel)}
-.pc-txt ul{margin:0;padding-left:18px;font-size:19px;line-height:1.25}
-.pc-sign{margin:10px 0 0;font-size:19px;color:#e8466f}
-.pc-stamp{position:absolute;right:12px;top:10px;width:44px;transform:rotate(4deg)}.pc-stamp svg{width:100%;height:auto;display:block;filter:drop-shadow(1px 2px 0 #3d376222)}
-.pc-mark{position:absolute;right:64px;top:12px;font-family:var(--pixel);font-size:9px;line-height:1.2;color:#9b8fb8;border:2px solid #c9bedd;border-radius:50%;padding:7px 5px;text-align:center;transform:rotate(-12deg);opacity:.8}
+.postcard{--px:4px;background:#fffaf2;margin:10px var(--px) 16px;box-shadow:0 calc(-1*var(--px)) 0 0 #3d3762,0 var(--px) 0 0 #3d3762,calc(-1*var(--px)) 0 0 0 #3d3762,var(--px) 0 0 0 #3d3762,0 calc(3*var(--px)) 0 0 var(--pxs)}
+.pc-bar{position:relative;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:#3d3762;color:#ffd95a;font-family:var(--pixel);padding:10px 12px 12px;letter-spacing:.04em}
+.pc-bar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:radial-gradient(circle,#ff8fb4 0 1.6px,transparent 2px) 0 0/10px 4px}
+@media(prefers-reduced-motion:no-preference){.pc-bar::after{animation:bulbs .9s steps(1) infinite}.pc-sign i{animation:blink 1.1s steps(1) infinite}}
+.pc-bar b{font-size:15px;text-shadow:2px 2px 0 #e8668f}
+.pc-bar span{font-size:12px;color:#ff8fb4}
+.pc-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
+@media(max-width:520px){.pc-body{grid-template-columns:minmax(0,1fr)}}
+.pc-pic{min-height:170px;background:#cdeeff;overflow:hidden;border-right:4px solid #3d3762}
+@media(max-width:520px){.pc-pic{border-right:0;border-bottom:4px solid #3d3762}}
+.pc-pic img,.pc-pic svg{display:block;width:100%;height:100%;object-fit:cover;min-height:170px;image-rendering:pixelated}
+.pc-txt{position:relative;padding:12px 14px 14px;font-family:var(--pixel);color:#3d3762;background:radial-gradient(circle,#f1e4cf 1px,transparent 1.4px) 0 0/10px 10px}
+.pc-stamp{position:absolute;right:12px;top:10px;width:40px}.pc-stamp svg{width:100%;height:auto;display:block;filter:drop-shadow(2px 2px 0 #3d376233)}
+.pc-mark{position:absolute;right:60px;top:12px;font-size:10px;line-height:1.25;color:#9b8fb8;padding:4px 6px;text-align:center;background:repeating-linear-gradient(90deg,#9b8fb8 0 4px,transparent 4px 8px) top/100% 2px no-repeat,repeating-linear-gradient(90deg,#9b8fb8 0 4px,transparent 4px 8px) bottom/100% 2px no-repeat}
+.pc-to{margin:4px 110px 10px 0;font-size:12px;color:#7a76b8;min-height:28px}
+.pc-rows{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.pc-rows li{display:flex;align-items:center;gap:8px;font-size:14px}
+.pc-rows svg{flex:none;width:20px;height:auto}
+.pc-rows span{white-space:nowrap}
+.pc-rows i{flex:1;min-width:8px;height:2px;align-self:center;background:repeating-linear-gradient(90deg,#c9bedd 0 2px,transparent 2px 6px)}
+.pc-rows b{color:#e8466f;font-size:16px}
+.pc-score{display:flex;justify-content:space-between;align-items:center;margin:10px 0 0;padding:6px 8px;background:#3d3762;color:#fff;font-size:12px}
+.pc-score b{color:#ffd95a;font-size:18px;letter-spacing:.08em}
+.pc-sign{margin:10px 0 0;font-size:13px;color:#e8466f}
+.pc-sign i{font-style:normal;margin-left:6px}
 .pcs{display:flex;flex-wrap:wrap;gap:6px}
 .pcchip{min-height:0!important;padding:4px 10px!important;font-size:13px}
 .pcchip[aria-pressed=true]{--bb:var(--accent)}
@@ -2874,28 +2888,38 @@ function pcScene(seed){
   let fishA='', fishB='';
   try{ const f=fishNow(); fishA=`<g transform="translate(58 66) scale(.42)" style="${fishVars(f.A)}"><use href="#${f.A.shape||'fish'}"/>${accSvg(f.A)}</g>`; fishB=`<g transform="translate(110 70) scale(-.42 .42)" style="${fishVars(f.B)}"><use href="#${f.B.shape||'fish'}"/>${accSvg(f.B)}</g>`; }catch(e){}
   const r=i=>hashR(seed+'|'+i);
-  return `<svg viewBox="0 0 160 120" shape-rendering="crispEdges" role="img" aria-label="Your two fish"><rect width="160" height="120" fill="#cdeeff"/><rect y="0" width="160" height="30" fill="#e3f6ff"/><rect y="100" width="160" height="20" fill="#ffe0c2"/><rect y="98" width="160" height="4" fill="#ffd0a6"/>
+  return `<svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" role="img" aria-label="Your two fish"><rect width="160" height="120" fill="#cdeeff"/><rect y="0" width="160" height="30" fill="#e3f6ff"/><rect y="100" width="160" height="20" fill="#ffe0c2"/><rect y="98" width="160" height="4" fill="#ffd0a6"/>
     ${Array.from({length:7},(_,i)=>`<rect x="${Math.round(r(i)*150)}" y="${Math.round(10+r(i+9)*80)}" width="4" height="4" fill="#fff" opacity=".8"/>`).join('')}
     <rect x="14" y="70" width="4" height="30" fill="#5fb88a"/><rect x="18" y="62" width="4" height="12" fill="#5fb88a"/><rect x="140" y="76" width="4" height="24" fill="#5fb88a"/><rect x="136" y="70" width="4" height="10" fill="#5fb88a"/>
     ${fishA}${fishB}<g fill="#ff6b8f"><rect x="82" y="36" width="3" height="3"/><rect x="87" y="36" width="3" height="3"/><rect x="81" y="39" width="10" height="3"/><rect x="83" y="42" width="6" height="3"/><rect x="85" y="45" width="2" height="2"/></g></svg>`;
 }
 const PC_STAMP=`<svg viewBox="0 0 13 15" shape-rendering="crispEdges">${pix(['w.w.w.w.w.w','wwwwwwwwwww','wbbbbbbbbbw','wbbrrbrrbbw','wbrrrrrrrbw','wbbrrrrrbbw','wbbbrrrbbbw','wbbbbrbbbbw','wgggggggggw','wwwwwwwwwww','w.w.w.w.w.w'],{w:'#fff6ee',b:'#bfe6ff',r:'#ff6b8f',g:'#5fb88a'},1,1,2)}</svg>`;
+const PC_IC={
+  hug:['.pp.pp.','pPPpPPp','pPPPPPp','.pPPPp.','..pPp..','...p...'],
+  kiss:['.r...r.','rRr.rRr','rRRrRRr','.rRRRr.','..rrr..'],
+  miss:['..bb...','.bBBb..','bBBBBbb','bBBBBBb','.bbbbb.','..d.d..','.d...d.'],
+  notes:['ppppppp','pPpppPp','pPPpPPp','pPPPPPp','ppppppp'],
+  tapes:['kkkkkkk','kPPPPPk','kPkPkPk','kPPPPPk','kkkkkkk'],
+  bottles:['..k..','.bbb.','.bBb.','bBBBb','bBBBb','bbbbb'],
+  photos:['.kk....','kkkkkkk','kWkkkWk','kkWWWkk','kkkkkkk'],
+  place:['k......','kppppp.','kpPPPp.','kppppp.','k......','k......'],
+  both:['.y...y.','yYy.yYy','.y...y.','.......','.ppppp.','..ppp..']};
+const PC_PAL={p:'#e8466f',P:'#ff8fb4',r:'#e8466f',R:'#ff8fb4',b:'#6fb2d6',B:'#d6f0ff',d:'#6fb2d6',k:'#3d3762',W:'#ffd95a',y:'#e8a21e',Y:'#ffd95a'};
+const pcIc=k=>{ const r=PC_IC[k], C=Math.max(...r.map(x=>x.length)); return `<svg viewBox="0 0 ${C+2} ${r.length+2}" shape-rendering="crispEdges">${pix(r,PC_PAL,1,1,1)}</svg>`; };
 function postcardHtml(p){
   const ws=new Date(p.week+'T00:00:00'), we=new Date(ws); we.setDate(we.getDate()+6);
-  const f=d=>d.toLocaleDateString(undefined,{month:'short',day:'numeric'}), s=p.stats||{}, lines=[];
-  const hello=[s.hug&&pl(s.hug,'hug','hugs'), s.kiss&&pl(s.kiss,'kiss','kisses'), s.miss&&pl(s.miss,'miss you','miss yous')].filter(Boolean);
-  if(hello.length) lines.push('Sent '+joinList(hello));
-  if(s.notes) lines.push(`Left ${pl(s.notes,'love note','love notes')}`);
-  if(s.tapes) lines.push(`Swapped ${pl(s.tapes,'voice tape','voice tapes')}`);
-  if(s.bottles) lines.push(`Tossed ${pl(s.bottles,'bottle','bottles')} out to sea`);
-  if(s.photos) lines.push(`Pinned ${pl(s.photos,'new memory','new memories')}`);
-  if(s.been) lines.push(`Visited ${pl(s.been,'bucket-list place','bucket-list places')}! 🗺️`); else if(s.places) lines.push(`Dreamed up ${pl(s.places,'new place','new places')} to go`);
-  if(s.both) lines.push(`Both showed up ${s.both} of 7 days`);
-  const close=lines.length?PC_SIGN[Math.floor(hashR(p.week)*PC_SIGN.length)]:'A quiet week. Let’s make the next one extra cute!';
+  const f=d=>d.toLocaleDateString(undefined,{month:'short',day:'numeric'}).toUpperCase(), s=p.stats||{};
+  const rows=[['hug','Hugs',s.hug],['kiss','Kisses',s.kiss],['miss','Miss yous',s.miss],['notes','Love notes',s.notes],['tapes','Voice tapes',s.tapes],['bottles','Bottles',s.bottles],['photos','Memories',s.photos],
+    ['place',s.been?'Places visited':'New places',s.been||s.places],['both','Days together',s.both?`${s.both}/7`:0]].filter(r=>r[2]);
+  const total=(s.hug||0)+(s.kiss||0)+(s.miss||0)+(s.notes||0)*5+(s.tapes||0)*5+(s.bottles||0)*5+(s.photos||0)*5+(s.places||0)*5+(s.been||0)*20+(s.both||0)*10;
+  const close=rows.length?PC_SIGN[Math.floor(hashR(p.week)*PC_SIGN.length)]:'A quiet week. Let’s make the next one extra cute!';
   const ph=s.photo&&photos.find(x=>x.id===s.photo);
   const pic=ph?`<img src="${esc(ph.url||('/_blob/'+ph.asset))}" alt="${esc(ph.caption||'A memory from this week')}">`:pcScene(p.week);
-  return `<div class="postcard"><div class="pc-pic">${pic}</div><div class="pc-txt"><div class="pc-stamp">${PC_STAMP}</div><div class="pc-mark">PIXELLOVE<br>${esc(f(we).toUpperCase())}</div>
-    <h3>Week of ${esc(f(ws))} – ${esc(f(we))}</h3><ul>${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul><p class="pc-sign">${esc(close)}<br>— ${esc(sideName('A'))} &amp; ${esc(sideName('B'))}</p></div></div>`;
+  return `<div class="postcard"><div class="pc-bar"><b>WEEK ${esc(f(ws))} – ${esc(f(we))}</b><span>${rows.length?'WEEK CLEAR!':'PAUSED'}</span></div>
+    <div class="pc-body"><div class="pc-pic">${pic}</div><div class="pc-txt"><div class="pc-stamp">${PC_STAMP}</div><div class="pc-mark">SENT<br>${esc(f(we))}</div>
+    <p class="pc-to">TO: ${esc(sideName('A'))} &amp; ${esc(sideName('B'))}</p>
+    ${rows.length?`<ul class="pc-rows">${rows.map(([k,l,v])=>`<li>${pcIc(k)}<span>${esc(l)}</span><i></i><b>${esc(String(v))}</b></li>`).join('')}</ul><p class="pc-score"><span>LOVE SCORE</span><b>${String(total).padStart(5,'0')}</b></p>`:''}
+    <p class="pc-sign">${esc(close)}<i>♥</i></p></div></div></div>`;
 }
 function renderPostcards(){
   const el=$('pcNow'); if(!el) return; const keys=Object.keys(postcards).filter(k=>/^\d{4}-\d\d-\d\d$/.test(k)).sort().reverse();
