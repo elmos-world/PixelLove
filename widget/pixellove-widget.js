@@ -86,7 +86,9 @@ async function load() {
   const other = me === b ? a : b, side = me === b ? "A" : "B";
   let name = s["name" + side] || "";
   if (other) { try { const p = await get(`profiles/${other}`, A); if (p && p.name) name = p.name; } catch (e) {} }
-  return {s, pet, me, other, side: me === b ? "B" : "A", name: name || "Your person", tz: s["tz" + side] || null,
+  let doodle = null;
+  if (other) { try { const dd = await get(`doodles/${other}`, A); if (dd && typeof dd.grid === "string" && dd.grid.length === 576) doodle = dd; } catch (e) {} }
+  return {s, pet, me, other, doodle, side: me === b ? "B" : "A", name: name || "Your person", tz: s["tz" + side] || null,
     mood: other && moods && moods[other], song: other && songs && songs[other], night: other && nights && nights[other],
     note: notes.find(n => n.by === other)};
 }
@@ -154,12 +156,26 @@ function scene(d, fam) {
   const close = r() < .45;
   const xB = close ? xA + fw + 2 + r() * 4 : xA + fw + 6 + r() * Math.max(0, ax + aw - fw - (xA + fw + 6));
   const yB = close ? Math.min(Math.max(ay, yA + (r() - .5) * 8), ay + ah - fh) : ay + r() * Math.max(0, ah - fh);
+  if (fam === "medium" && d.doodle) { // the doodle takes the right side, so the fish sit this one out
+    ctx.setStrokeColor(new Color("#ffffff", .9)); ctx.setLineWidth(1.5);
+    for (let i = 0; i < 4; i++) { const br = 2 + r() * 3; ctx.strokeEllipse(new Rect(20 + r() * (W * .5), 20 + r() * (H - 50), br * 2, br * 2)); }
+    return ctx.getImage();
+  }
   drawFish(ctx, d.s.fishA, xA, yA, px, false);                       // P1 swims right
   drawFish(ctx, d.s.fishB, Math.min(xB, ax + aw - fw), yB, px, true); // P2 faces P1
   if (close) pixHeart(ctx, xA + fw - 3 * px, Math.min(yA, yB) - 7 * px, px);
   // bubbles
   ctx.setStrokeColor(new Color("#ffffff", .9)); ctx.setLineWidth(1.5);
   for (let i = 0; i < (fam === "small" ? 3 : 5); i++) { const br = 2 + r() * 3; ctx.strokeEllipse(new Rect(ax + r() * aw, ay + r() * ah, br * 2, br * 2)); }
+  return ctx.getImage();
+}
+// their latest pixel doodle (24×24, one character per cell)
+const DPAL = ["#3d3762", "#ffffff", "#ff6b8f", "#ffb3c7", "#ff9a45", "#ffd95a", "#a6e6cf", "#5fb88a", "#9fd3f5", "#6fb2d6", "#cdb8f5", "#c98b5e"], DCH = "0123456789ab";
+function doodleImage(grid) {
+  const n = 24, px = 4, ctx = new DrawContext(); ctx.size = new Size(n * px + 8, n * px + 8); ctx.opaque = false; ctx.respectScreenScale = true;
+  ctx.setFillColor(new Color("#3d3762")); ctx.fillRect(new Rect(0, 0, n * px + 8, n * px + 8));
+  ctx.setFillColor(Color.white()); ctx.fillRect(new Rect(3, 3, n * px + 2, n * px + 2));
+  [...grid].forEach((ch, i) => { const k = DCH.indexOf(ch); if (k < 0) return; ctx.setFillColor(new Color(DPAL[k])); ctx.fillRect(new Rect(4 + (i % n) * px, 4 + Math.floor(i / n) * px, px, px)); });
   return ctx.getImage();
 }
 function fishImage() { // little pixel goldfish for the title
@@ -189,7 +205,8 @@ function build(d, size) {
   }
   // on medium, the words stay on the left so the fish get the right side
   let body = w;
-  if (size === "medium") { const row = w.addStack(); body = row.addStack(); body.layoutVertically(); body.size = new Size(190, 0); row.addSpacer(); }
+  if (size === "medium") { const row = w.addStack(); body = row.addStack(); body.layoutVertically(); body.size = new Size(190, 0); row.addSpacer();
+    if (d.doodle) { const im = row.addImage(doodleImage(d.doodle.grid)); im.imageSize = new Size(92, 92); } }
 
   const c = countdown(d.s), row = body.addStack(); row.bottomAlignContent();
   text(row, c.big, size === "small" ? 26 : 34, INK, true); row.addSpacer(6);
@@ -207,6 +224,7 @@ function build(d, size) {
     if (d.other) text(body, d.song && d.song.title ? `🎵 ${d.song.title}` : "🎵 No song yet", 12, d.song ? INK : SOFT, false);
     if (d.note && d.note.text) { const t = text(body, `💌 “${d.note.text}”`, 12, INK, false, size === "large" ? 4 : 2); t.font = Font.italicSystemFont(12); }
   }
+  if (size === "large" && d.doodle) { w.addSpacer(8); const dr = w.addStack(); dr.addSpacer(); const im = dr.addImage(doodleImage(d.doodle.grid)); im.imageSize = new Size(110, 110); dr.addSpacer(); text(w, `✏️ ${d.name} drew you this`, 11, SOFT, true); }
   w.addSpacer();
   const pl = petLine(d.pet); if (pl) text(w, `🐠 ${pl}`, 11, /happy/.test(pl) ? SOFT : HOT, true);
   return w;
