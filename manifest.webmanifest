@@ -1,6 +1,6 @@
 {
-  "name": "Two Little Fish",
-  "short_name": "Two Fish",
+  "name": "PixelLove",
+  "short_name": "PixelLove",
   "description": "A cozy little app for the two of us.",
   "start_url": "./",
   "scope": "./",
@@ -8,8 +8,21 @@
   "background_color": "#dcf0ff",
   "theme_color": "#dcf0ff",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
