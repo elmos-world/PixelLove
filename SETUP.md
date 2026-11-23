@@ -135,3 +135,16 @@ The **Our map** card on the Home screen needs no extra setup.
 | A photo won't upload | Photos get shrunk automatically. Very unusual formats might not work, so try a regular screenshot or JPG. |
 
 Your Firebase settings in `config.js` aren't secret, and it's fine that people can see them in a public GitHub repository. The rules from step 3 are what keep your data private.
+
+## Home-screen widget (iPhone)
+
+iPhones only allow widgets from App Store apps, so PixelLove's widget runs in **Scriptable**, a free App Store app. It shows your countdown, your person's time and mood weather, the song they picked, their latest love note, and how your pet fish is doing. Tap it to open PixelLove. It refreshes about every 15 minutes (iOS decides the exact timing).
+
+1. Install **Scriptable** from the App Store.
+2. On your phone, open `widget/pixellove-widget.js` in this repository on GitHub, tap the **⋯** or **Raw** button, and copy all of it.
+3. Open Scriptable, tap **+**, paste, and name the script **PixelLove** (tap the title at the top).
+4. Tap **▶** to run it once. Sign in with your PixelLove email and password. A preview of the widget appears. Your password isn't saved, only a sign-in token in your iPhone's Keychain.
+5. Go to your home screen, press and hold an empty spot, tap **Edit → Add Widget**, pick **Scriptable**, choose the medium (or small) size and tap **Add Widget**.
+6. Press and hold the new widget, tap **Edit Widget**, set **Script** to **PixelLove**, and set **When interacting** to **Open URL**. (It opens PixelLove.)
+
+If the widget says to run the script to sign in, open Scriptable and tap ▶ on PixelLove again. Each of you sets it up on your own phone, so it shows the other person.

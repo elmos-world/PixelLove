@@ -13,6 +13,7 @@ A cozy, pastel, pixel-arcade-style app for a long-distance couple (Thorunn and D
 | `firebase/firestore.rules` | Locks all data to the two allowed emails (`isUs()`). |
 | `firebase/functions/index.js` | Cloud Functions (v2) that send pushes, plus a 10-minute schedule for bottles washing up and a hungry pet. |
 | `firebase/functions/.env` | `APP_URL` (GitHub Pages address, trailing slash). |
+| `widget/pixellove-widget.js` | iPhone home-screen widget for the Scriptable app. Signs in with the Firebase Auth REST API (refresh token in Keychain) and reads Firestore REST. Keep its field names in sync with the app. |
 | `SETUP.md` | User-facing setup guide. Keep it in sync when setup steps change. |
 
 The app files sit at the repository root, and GitHub Pages serves them from there. Firebase files live in `firebase/`, which is just stored alongside the app. Never commit `node_modules` (see `.gitignore`).
