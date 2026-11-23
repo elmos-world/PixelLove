@@ -1774,7 +1774,7 @@ $('themeForm').addEventListener('submit',e=>{ e.preventDefault(); const t=themeD
   const n=themeNow(); if(TKEYS.some(([k])=>t[k]!==n[k])){ const next={...settings, theme:t}; setDoc('shared/settings', next, ()=>{ settings=next; }); } paintTheme(); toast('App colors saved'); });
 
 /* fish colours */
-const FISH_DEF={A:{b:'#ff9a45',f:'#ffb36b',shape:'fish',acc:''}, B:{b:'#ff9a45',f:'#ffb36b',shape:'fish',acc:''}, P:{b:'#ffb8cf',f:'#a8d8f0'}};
+const FISH_DEF={A:{b:'#ff9a45',f:'#ffb36b',shape:'fish',acc:''}, B:{b:'#ff9a45',f:'#ffb36b',shape:'fish',acc:''}, P:{b:'#ff9a45',f:'#ffb36b'}};
 const SHAPES={fish:['Goldfish','translate(2 -2) scale(1.3)'], fBetta:['Betta','translate(2 1) scale(1.1)'], fPuffer:['Pufferfish','translate(-4 -5) scale(1.35)'], fAngel:['Angelfish','translate(6 1) scale(1)']};
 const PRESETS=[['Goldfish','#ff9a45','#ffb36b'],['Bubblegum','#ffb8cf','#a8d8f0'],['Sky','#9fd3f5','#ffc4d8'],['Lavender','#cdb8f5','#ffd1e3'],['Mint','#a6e6cf','#ffd6a8'],['Lemon','#ffe27a','#ffb3c7'],['Koi','#fff4ec','#ff7a59'],['Midnight','#4a5fa8','#9fd3f5'],['Peachy','#ffb38a','#ffd6a8'],['Cotton candy','#c9b6ff','#ffb3d1'],['Galaxy','#4b3b8f','#9f7bea'],['Sunset','#ff8a5c','#ffc94d'],['Rainbow','#ff8fb4','#9fd3f5']];
 const PAL_FX={10:'galaxy',11:'sunset',12:'rainbow'};
