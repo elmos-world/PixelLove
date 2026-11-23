@@ -298,7 +298,7 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 .app .hero>div:last-child{order:-1}
 .app .card{border-radius:24px}
 .photos{columns:2 160px}
-.tabbar{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:min(640px,100%);display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));background:var(--card);border-radius:24px 24px 0 0;box-shadow:0 -8px 30px -14px #2c2a4a55}
+.tabbar{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:min(640px,100%);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));background:var(--card);border-radius:24px 24px 0 0;box-shadow:0 -8px 30px -14px #2c2a4a55}
 .tab{position:relative;border:0;border-radius:16px;background:none;color:var(--soft);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;min-height:56px;font-size:12px;font-weight:800}
 .tab svg{width:24px;height:24px}
 .tab[aria-current=page]{color:var(--accent);background:var(--accent2)}
@@ -599,93 +599,6 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .dtheirs svg{width:96px;height:96px;background:#fff;box-shadow:0 0 0 3px var(--line)}
 .dtheirs p{margin:0;font-family:"Gaegu",cursive;font-size:20px}
 </style>
-<style>
-/* sea quest */
-.qtop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 4px 12px;flex-wrap:wrap}
-.qtitle{margin:0}
-.qback{min-height:36px!important;padding:4px 12px!important}
-.qcurs{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.qcur{display:inline-flex;align-items:center;gap:4px;background:#fff;padding:3px 8px;font-family:var(--pixel);font-size:14px;box-shadow:0 0 0 2px var(--line)}
-.qcur svg{width:14px;height:14px}
-.qrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.qrate{font-size:13px;margin:6px 0 0}
-.qscene{position:relative;height:130px;margin:10px 0;background:linear-gradient(180deg,var(--z1),var(--z2));overflow:hidden;box-shadow:0 0 0 3px var(--line)}
-.qscene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16px;background:var(--zs)}
-.qside{position:absolute;left:6%;top:14px;bottom:18px;width:44%;display:flex;flex-wrap:wrap;align-content:center;gap:2px 6px}
-.qside.r{left:auto;right:6%;justify-content:flex-end}
-.qsp{width:46px;z-index:1}.qsp svg{width:100%;display:block}
-.qsp.r svg{transform:scaleX(-1)}
-@media(prefers-reduced-motion:no-preference){.qsp{animation:qbob 1.6s steps(4) infinite;animation-delay:calc(var(--i)*-.4s)}.qsp:not(.r){animation-name:qbob,qpoke}}
-@keyframes qbob{50%{transform:translateY(-4px)}}
-@keyframes qpoke{0%,80%{translate:0}90%{translate:8px}}
-.qstage h3{margin:2px 0 0}.qboss{color:#e2475f;font-style:normal}
-.qpow{font-family:var(--pixel);font-size:14px;color:var(--soft)}.qpow b{color:var(--ink);font-size:18px}
-.qfoes{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
-.qfoe{width:58px;text-align:center;font-family:var(--pixel);font-size:12px}.qfoe svg{width:52px;display:block;margin:0 auto;transform:scaleX(-1)}
-.qfoe.boss svg{width:58px;filter:drop-shadow(0 0 4px #ff6b8f)}
-.qbig{width:100%;margin-top:8px}
-.qnav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 4px 18px}
-.qnav button{min-height:54px}
-.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
-.qcard{position:relative;display:grid;justify-items:center;gap:2px;padding:8px 4px!important;min-height:0!important;text-align:center;background:#fff;font-size:12px}
-.qcard b{font-family:var(--pixel);font-size:14px}.qcard span{font-size:12px;color:var(--soft)}
-.qcard.locked .qpix{filter:brightness(0) opacity(.25)}
-.qcard.r4{background:linear-gradient(180deg,#f3eaff,#fff)}.qcard.r5{background:linear-gradient(180deg,#fff3c4,#fff)}
-.qpix{width:64px}.qpix svg{width:100%;display:block}
-.qslot{position:absolute;top:4px;left:4px;font-style:normal;font-family:var(--pixel);font-size:11px;background:var(--accent);color:#fff;padding:0 5px}
-.qel{display:inline-block;font-family:var(--pixel);font-size:11px;color:#fff;background:var(--ec);padding:1px 6px}
-.qstars{color:#c9a0ff;letter-spacing:-1px;font-size:13px}.qstars.r4{color:#b48cf5}.qstars.r5{color:#f5b82e;text-shadow:0 0 4px #ffe58a}.qstars.r3{color:#7fc4e8}.qplus{font-family:var(--pixel);color:var(--accent);margin-left:4px;font-size:13px}
-.qteam{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.qtm{display:grid;justify-items:center;gap:2px;padding:6px 2px!important;min-height:76px!important;background:#fff;font-size:11px;color:var(--soft)}
-.qtm.empty{display:grid;place-items:center;box-shadow:0 0 0 2px var(--line) inset;background:repeating-linear-gradient(45deg,#fff 0 6px,#f6f2fb 6px 12px)}
-.qtm .qpix{width:48px}
-.qstarters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
-.qstarters .qpix{width:80px}
-.qhero .qfull{position:relative;margin:-4px -4px 10px;aspect-ratio:1/1.05;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--ec) 30%,#fff),color-mix(in srgb,var(--ec) 60%,#2c2a4a) 120%);overflow:hidden;box-shadow:0 0 0 3px var(--line)}
-.qhero .qfull svg{width:100%;height:100%;display:block}.qhero .qfull img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 3%}.qhero .qfull img.qcut{object-fit:contain;object-position:50% 100%;padding-top:3%;filter:drop-shadow(0 6px 10px #2c2a4a55)}.qpix img,.qsp img,.qbody img,.qfoe img,.qres img{width:100%;display:block;image-rendering:pixelated}.qcard.locked .qpix img{filter:brightness(0) opacity(.25)}.qhero .qfull.locked img,.qhero .qfull.locked svg{filter:brightness(.3) blur(8px) saturate(.6)}
-.qhero .qfull.locked svg{filter:brightness(0) opacity(.3)}
-.qhname{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.qhname h2{margin:0}.qhname .sub{margin:0}
-.qtags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-.qtag{font-family:var(--pixel);font-size:11px;padding:1px 6px;background:#f1ecfa}.qtag.r4{background:#e6d9ff}.qtag.r5{background:#ffe7a3}
-.qstats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0}
-.qstats div{background:#fff;padding:6px 4px;text-align:center;box-shadow:0 0 0 2px var(--line)}
-.qstats span{display:block;font-size:11px;color:var(--soft)}.qstats b{font-family:var(--pixel);font-size:16px}
-.qskill{background:#fff;padding:10px 12px;margin:10px 0;box-shadow:0 0 0 2px var(--line)}.qskill b{font-family:var(--pixel);color:var(--accent)}.qskill p{margin:4px 0}
-.qlv{margin-top:10px}.qevtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:-2px 0 10px}.qevtabs button{min-height:34px!important;padding:4px!important;font-size:13px}.qevtabs button[aria-pressed="true"]{background:var(--accent);color:#fff}.qevtabs .lk{opacity:.6}.qfull{position:relative}.qlockmsg{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:#3d3762e6;color:#fff;font-family:var(--pixel);font-size:14px;padding:6px 12px;white-space:nowrap}.qlockmsg.soft{background:#ffffffd9;color:#3d3762}.qevo{background:linear-gradient(90deg,#fff8dc,#fff)!important}.qevb{font-style:normal;color:#f5b82e}.qasc{margin-top:10px;background:#fff;padding:8px 10px;box-shadow:0 0 0 2px var(--line)}.qup{font-style:normal;color:#5fb88a}
-.qsummon{text-align:center}
-.qclam{width:180px;margin:6px auto}.qclam svg{width:100%;display:block}
-.qclamtop{transform-origin:32px 24px;transition:transform .4s steps(4)}.qclam.open .qclamtop{transform:rotate(-24deg) translateY(-6px)}
-.qresults{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:14px}
-.qres{display:grid;justify-items:center;padding:6px;background:#fff;font-size:12px;box-shadow:0 0 0 2px var(--line)}.qres b{font-family:var(--pixel);font-size:13px}
-.qres.r4{box-shadow:0 0 0 3px #b48cf5}.qres.r5{box-shadow:0 0 0 3px #f5b82e;background:#fff8dc}
-@media(prefers-reduced-motion:no-preference){.qres{animation:qpop .4s steps(4) both}.qres:nth-child(n){animation-delay:calc(var(--n,0)*60ms)}}
-@keyframes qpop{from{transform:scale(.3);opacity:0}}
-.qbattle{position:fixed;inset:0;z-index:9000;background:#2c2a4acc;display:grid;place-items:center;padding:12px}
-.qarena{position:relative;width:min(560px,100%);aspect-ratio:1/1;max-height:80vh;background:linear-gradient(180deg,var(--z1),var(--z2));box-shadow:0 0 0 4px #3d3762,0 0 0 8px #ff8fb4;overflow:hidden}
-.qarena::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14%;background:var(--zs)}
-.qbhead{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;font-family:var(--pixel);z-index:3;color:#3d3762}
-.qbhead button{min-height:30px!important;padding:2px 10px!important;margin-left:6px;font-size:13px}
-.qu{position:absolute;width:19%;transform:translate(-50%,-50%);z-index:2}
-.qu.boss{width:27%}
-.qu .qbody svg{width:100%;display:block}.qu.foe .qbody svg{transform:scaleX(-1)}
-.qhp,.qen{height:5px;background:#3d376244;margin:0 10% 2px}.qhp i,.qen i{display:block;height:100%;transition:width .25s steps(4)}
-.qhp i{background:#5fd38a}.qu.foe .qhp i{background:#ff6b8f}.qen i{background:#ffd95a}
-.qu.ko{opacity:.25;filter:grayscale(1)}
-.qu.lunge .qbody{animation:qlunge .35s steps(3)}.qu.foe.lunge .qbody{animation-name:qlungeR}
-.qu.cast .qbody{animation:qcast .5s steps(4)}
-.qu.hit .qbody{animation:qhit .3s steps(2)}
-@keyframes qlunge{50%{transform:translateX(30%)}}@keyframes qlungeR{50%{transform:translateX(-30%)}}
-@keyframes qcast{50%{transform:scale(1.15);filter:drop-shadow(0 0 6px #fff3a0) brightness(1.2)}}
-@keyframes qhit{50%{filter:brightness(1.5) drop-shadow(0 0 4px #fff);transform:translateX(-4%)}}
-.qnum{position:absolute;left:50%;top:0;transform:translate(-50%,0);font-family:var(--pixel);font-size:16px;font-weight:700;white-space:nowrap;pointer-events:none;text-shadow:2px 2px 0 #3d3762;animation:qnum .9s steps(6) forwards;z-index:4}
-.qnum.dmg{color:#fff}.qnum.crit{color:#ffd95a;font-size:19px}.qnum.adv{color:#ff9a45;font-size:18px}.qnum.heal{color:#5fd38a}.qnum.sh{color:#9fd3f5}.qnum.buf{color:#ffd95a}.qnum.st{color:#cdb8f5}
-@keyframes qnum{to{transform:translate(-50%,-140%);opacity:0}}
-.qbanner{position:absolute;left:50%;top:14%;transform:translateX(-50%);font-family:var(--pixel);font-size:20px;color:#fff;background:#3d3762;padding:4px 14px;opacity:0;z-index:5;white-space:nowrap}
-.qbanner.on{animation:qban 1s steps(5)}@keyframes qban{10%,80%{opacity:1}100%{opacity:0}}
-.qbres{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:8px;text-align:center;background:#ffffffee;padding:20px;z-index:9001}
-.qbres[hidden]{display:none}
-.qwin{color:#e2475f;font-size:34px;margin:0}.qlose{color:#7a76b8;font-size:30px;margin:0}.qbonus{font-family:var(--pixel);color:#c98a12}
-</style>
 </head>
 <body>
 <div id="gate">
@@ -963,7 +876,7 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
     <p class="empty" id="ideasEmpty">Nothing on the list yet. Add your first date idea.</p>
   </div>
 </section>
-<section class="view" data-view="quest"><div id="qRoot"></div></section>
+
 <section class="view" data-view="profile">
 <div class="seg" id="profTabs"></div>
 <div class="card profile" id="profCard"></div>
@@ -1000,7 +913,7 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 <p class="status" id="status">Connecting…</p>
 </main>
 
-<nav class="tabbar" aria-label="Pages"><button class="tab" data-go="home" aria-label="Home"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M10 0h4v2h-4zM8 2h8v2h-8zM6 4h12v2h-12zM4 6h16v2h-16zM2 8h20v2h-20zM0 10h24v2h-24zM4 12h16v2h-16zM4 14h6v2h-6zM14 14h6v2h-6zM4 16h6v2h-6zM14 16h6v2h-6zM4 18h6v2h-6zM14 18h6v2h-6zM4 20h6v2h-6zM14 20h6v2h-6zM4 22h6v2h-6zM14 22h6v2h-6z"/></svg><span>Home</span><i class="badge" id="badge-home" hidden></i></button><button class="tab" data-go="pet" aria-label="Pet"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M10 2h8v2h-8zM0 4h2v2h-2zM8 4h12v2h-12zM0 6h4v2h-4zM6 6h16v2h-16zM0 8h14v2h-14zM16 8h8v2h-8zM0 10h24v2h-24zM0 12h24v2h-24zM0 14h4v2h-4zM6 14h16v2h-16zM0 16h2v2h-2zM8 16h12v2h-12zM10 18h8v2h-8z"/></svg><span>Pet</span><i class="badge" id="badge-pet" hidden></i></button><button class="tab" data-go="love" aria-label="Love"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M4 2h4v2h-4zM16 2h4v2h-4zM2 4h8v2h-8zM14 4h8v2h-8zM0 6h24v2h-24zM0 8h24v2h-24zM0 10h24v2h-24zM2 12h20v2h-20zM4 14h16v2h-16zM6 16h12v2h-12zM8 18h8v2h-8zM10 20h4v2h-4z"/></svg><span>Love</span><i class="badge" id="badge-love" hidden></i></button><button class="tab" data-go="memories" aria-label="Memories"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M8 2h8v2h-8zM0 4h24v2h-24zM0 6h24v2h-24zM0 8h8v2h-8zM16 8h8v2h-8zM0 10h6v2h-6zM10 10h4v2h-4zM18 10h6v2h-6zM0 12h6v2h-6zM8 12h8v2h-8zM18 12h6v2h-6zM0 14h6v2h-6zM10 14h4v2h-4zM18 14h6v2h-6zM0 16h8v2h-8zM16 16h8v2h-8zM0 18h24v2h-24zM0 20h24v2h-24z"/></svg><span>Memories</span><i class="badge" id="badge-memories" hidden></i></button><button class="tab" data-go="dates" aria-label="Dates"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M4 0h2v2h-2zM16 0h2v2h-2zM0 2h24v2h-24zM0 4h24v2h-24zM0 6h2v2h-2zM22 6h2v2h-2zM0 8h2v2h-2zM4 8h4v2h-4zM10 8h4v2h-4zM16 8h4v2h-4zM22 8h2v2h-2zM0 10h2v2h-2zM22 10h2v2h-2zM0 12h2v2h-2zM4 12h4v2h-4zM10 12h4v2h-4zM16 12h4v2h-4zM22 12h2v2h-2zM0 14h2v2h-2zM22 14h2v2h-2zM0 16h2v2h-2zM4 16h4v2h-4zM10 16h4v2h-4zM22 16h2v2h-2zM0 18h2v2h-2zM22 18h2v2h-2zM0 20h24v2h-24z"/></svg><span>Dates</span><i class="badge" id="badge-dates" hidden></i></button><button class="tab" data-go="quest" aria-label="Quest"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M18 0h6v6h-2v2h-2v2h-2v2h-2v2h-2v-2h-2v-2h2v-2h2v-2h2v-2h2zM4 12h2v2h2v2h2v2h-2v2h-2v-2h-2v2h-2v2h-2v-2h2v-2h2v-2h-2v-2h2z"/></svg><span>Quest</span></button><button class="tab" data-go="badges" aria-label="Badges"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M10 0h4v2h-4zM10 2h4v2h-4zM8 4h8v2h-8zM0 6h24v2h-24zM2 8h20v2h-20zM4 10h16v2h-16zM6 12h12v2h-12zM6 14h12v2h-12zM4 16h6v2h-6zM14 16h6v2h-6zM4 18h4v2h-4zM16 18h4v2h-4zM2 20h4v2h-4zM18 20h4v2h-4z"/></svg><span>Badges</span><i class="badge" id="badge-badges" hidden></i></button></nav>
+<nav class="tabbar" aria-label="Pages"><button class="tab" data-go="home" aria-label="Home"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M10 0h4v2h-4zM8 2h8v2h-8zM6 4h12v2h-12zM4 6h16v2h-16zM2 8h20v2h-20zM0 10h24v2h-24zM4 12h16v2h-16zM4 14h6v2h-6zM14 14h6v2h-6zM4 16h6v2h-6zM14 16h6v2h-6zM4 18h6v2h-6zM14 18h6v2h-6zM4 20h6v2h-6zM14 20h6v2h-6zM4 22h6v2h-6zM14 22h6v2h-6z"/></svg><span>Home</span><i class="badge" id="badge-home" hidden></i></button><button class="tab" data-go="pet" aria-label="Pet"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M10 2h8v2h-8zM0 4h2v2h-2zM8 4h12v2h-12zM0 6h4v2h-4zM6 6h16v2h-16zM0 8h14v2h-14zM16 8h8v2h-8zM0 10h24v2h-24zM0 12h24v2h-24zM0 14h4v2h-4zM6 14h16v2h-16zM0 16h2v2h-2zM8 16h12v2h-12zM10 18h8v2h-8z"/></svg><span>Pet</span><i class="badge" id="badge-pet" hidden></i></button><button class="tab" data-go="love" aria-label="Love"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M4 2h4v2h-4zM16 2h4v2h-4zM2 4h8v2h-8zM14 4h8v2h-8zM0 6h24v2h-24zM0 8h24v2h-24zM0 10h24v2h-24zM2 12h20v2h-20zM4 14h16v2h-16zM6 16h12v2h-12zM8 18h8v2h-8zM10 20h4v2h-4z"/></svg><span>Love</span><i class="badge" id="badge-love" hidden></i></button><button class="tab" data-go="memories" aria-label="Memories"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M8 2h8v2h-8zM0 4h24v2h-24zM0 6h24v2h-24zM0 8h8v2h-8zM16 8h8v2h-8zM0 10h6v2h-6zM10 10h4v2h-4zM18 10h6v2h-6zM0 12h6v2h-6zM8 12h8v2h-8zM18 12h6v2h-6zM0 14h6v2h-6zM10 14h4v2h-4zM18 14h6v2h-6zM0 16h8v2h-8zM16 16h8v2h-8zM0 18h24v2h-24zM0 20h24v2h-24z"/></svg><span>Memories</span><i class="badge" id="badge-memories" hidden></i></button><button class="tab" data-go="dates" aria-label="Dates"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M4 0h2v2h-2zM16 0h2v2h-2zM0 2h24v2h-24zM0 4h24v2h-24zM0 6h2v2h-2zM22 6h2v2h-2zM0 8h2v2h-2zM4 8h4v2h-4zM10 8h4v2h-4zM16 8h4v2h-4zM22 8h2v2h-2zM0 10h2v2h-2zM22 10h2v2h-2zM0 12h2v2h-2zM4 12h4v2h-4zM10 12h4v2h-4zM16 12h4v2h-4zM22 12h2v2h-2zM0 14h2v2h-2zM22 14h2v2h-2zM0 16h2v2h-2zM4 16h4v2h-4zM10 16h4v2h-4zM22 16h2v2h-2zM0 18h2v2h-2zM22 18h2v2h-2zM0 20h24v2h-24z"/></svg><span>Dates</span><i class="badge" id="badge-dates" hidden></i></button><button class="tab" data-go="badges" aria-label="Badges"><svg viewBox="0 0 24 24" fill="currentColor" shape-rendering="crispEdges"><path d="M10 0h4v2h-4zM10 2h4v2h-4zM8 4h8v2h-8zM0 6h24v2h-24zM2 8h20v2h-20zM4 10h16v2h-16zM6 12h12v2h-12zM6 14h12v2h-12zM4 16h6v2h-6zM14 16h6v2h-6zM4 18h4v2h-4zM16 18h4v2h-4zM2 20h4v2h-4zM18 20h4v2h-4z"/></svg><span>Badges</span><i class="badge" id="badge-badges" hidden></i></button></nav>
 
 <dialog id="dlg">
   <form id="setForm" method="dialog">
@@ -1660,8 +1573,6 @@ function renderDoodles(){
 }
 dPalUI(); dDraw();
 
-/* shared helpers for add-ons like Sea Quest (quest.js) */
-window.PL={ $:i=>$(i), esc:s=>esc(s), toast:t=>toast(t), sfx:k=>sfx(k), sparkle:(...a)=>sparkle(...a), confetti:n=>confetti(n), setDoc:(...a)=>setDoc(...a), myCoins:()=>myCoins(), writeCoins:c=>writeCoins(c), pix:(...a)=>pix(...a), hashR:s=>hashR(s), get me(){ return me; }, get reduce(){ return reduce; } };
 
 /* coins, tasks and the tank shop */
 
@@ -2350,7 +2261,7 @@ function paintBowl(key){
 function bowlPic(key){ const b=BOWLS[key]; return `<svg viewBox="${b.vb}" shape-rendering="crispEdges" style="--wt:var(--w1);--wb:var(--w2);--s0:var(--sand);--s1:var(--sand);--s2:var(--sand);--s3:var(--sand);--s4:var(--sand)"><g>${b.shadow}</g><g opacity=".55">${b.glass}</g><g>${b.water}</g><g>${b.sand}</g><g>${b.frame}</g><g opacity=".75">${b.shine}</g></svg>`; }
 
 /* app navigation */
-const VIEWS=['home','pet','love','memories','dates','quest','badges','profile'];
+const VIEWS=['home','pet','love','memories','dates','badges','profile'];
 function show(v, scroll=true){
   if(!VIEWS.includes(v)) v='home';
   curView=v;
@@ -2554,7 +2465,7 @@ renderAll();
   db.collection('profiles').onSnapshot(s=>{ profiles=byId(s); renderAll(); }, err);
   db.collection('presence').onSnapshot(s=>{ presence=byId(s); }, err);
   db.collection('doodles').onSnapshot(s=>{ doodles=byId(s); renderDoodles(); }, err);
-  window.__plDb={db,err}; window.questStart?.(db, err);
+ 
   startPresence();
   db.collection('locations').onSnapshot(s=>{ locs=byId(s); renderMap(); renderSkies(); }, err);
   try{ if(localStorage.getItem('tlf-live')==='on') startLive(true); }catch(e){}
@@ -2666,7 +2577,5 @@ async function refreshPush(ask){
 $('openPush').addEventListener('click',()=>refreshPush(true));
 isSupported().then(ok=>{ if(ok) onMessage(getMessaging(app),m=>window.__toast?.(m.notification?.title||'New message')); }).catch(()=>{});
 </script>
-<script src="quest-art.js?v=5" defer></script>
-<script src="quest.js?v=4" defer></script>
 </body>
 </html>
