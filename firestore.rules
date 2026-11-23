@@ -1,0 +1,15 @@
+rules_version = '2';
+// Only the two of you can read or write anything in the app.
+// Put both of your sign-in emails below, in lowercase.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isUs() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() in ['you@example.com', 'him@example.com'];
+    }
+    match /{document=**} {
+      allow read, write: if isUs();
+    }
+  }
+}
