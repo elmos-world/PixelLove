@@ -642,7 +642,7 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .qstarters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
 .qstarters .qpix{width:80px}
 .qhero .qfull{position:relative;margin:-4px -4px 10px;aspect-ratio:1/1.05;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--ec) 30%,#fff),color-mix(in srgb,var(--ec) 60%,#2c2a4a) 120%);overflow:hidden;box-shadow:0 0 0 3px var(--line)}
-.qhero .qfull svg{width:100%;height:100%;display:block}.qhero .qfull img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 20%}.qpix img,.qsp img,.qbody img,.qfoe img,.qres img{width:100%;display:block;image-rendering:pixelated}.qcard.locked .qpix img{filter:brightness(0) opacity(.25)}.qhero .qfull.locked img,.qhero .qfull.locked svg{filter:brightness(.3) blur(8px) saturate(.6)}
+.qhero .qfull svg{width:100%;height:100%;display:block}.qhero .qfull img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 3%}.qhero .qfull img.qcut{object-fit:contain;object-position:50% 100%;padding-top:3%;filter:drop-shadow(0 6px 10px #2c2a4a55)}.qpix img,.qsp img,.qbody img,.qfoe img,.qres img{width:100%;display:block;image-rendering:pixelated}.qcard.locked .qpix img{filter:brightness(0) opacity(.25)}.qhero .qfull.locked img,.qhero .qfull.locked svg{filter:brightness(.3) blur(8px) saturate(.6)}
 .qhero .qfull.locked svg{filter:brightness(0) opacity(.3)}
 .qhname{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.qhname h2{margin:0}.qhname .sub{margin:0}
 .qtags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
@@ -2666,7 +2666,7 @@ async function refreshPush(ask){
 $('openPush').addEventListener('click',()=>refreshPush(true));
 isSupported().then(ok=>{ if(ok) onMessage(getMessaging(app),m=>window.__toast?.(m.notification?.title||'New message')); }).catch(()=>{});
 </script>
-<script src="quest-art.js?v=3" defer></script>
+<script src="quest-art.js?v=5" defer></script>
 <script src="quest.js?v=4" defer></script>
 </body>
 </html>

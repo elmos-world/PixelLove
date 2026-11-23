@@ -4,5 +4,10 @@ window.QART={"marina":{"full":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox
 Object.assign(window.QART, {
   marina: {full:'<img src="quest/marina-full.jpg?v=1" alt="Marina, the mermaid princess">', pix:'<img src="quest/marina-pix.png?v=1" alt="" class="qpx">'},
   mista: {full:'<img src="quest/mista-full.jpg?v=1" alt="Mista, the siren">', pix:'<img src="quest/mista-pix.png?v=2" alt="" class="qpx">'},
-  henri: {full:'<img src="quest/henri-full.jpg?v=1" alt="Henri, the old sailor">', pix:'<img src="quest/henri-pix.png?v=1" alt="" class="qpx">'}
+  henri: {full:'<img src="quest/henri-full.jpg?v=1" alt="Henri, the old sailor">', pix:'<img src="quest/henri-pix.png?v=1" alt="" class="qpx">'},
+  sable: {full:'<img src="quest/sable-full.jpg?v=1" alt="Captain Sable, the pirate queen">', pix:'<img src="quest/sable-pix.png?v=1" alt="" class="qpx">'},
+  kai: {full:'<img src="quest/kai-full.jpg?v=3" alt="Kai, the tide warlock">', pix:'<img src="quest/kai-pix.png?v=1" alt="" class="qpx">'},
+  nerissa: {full:'<img src="quest/nerissa-full.jpg?v=1" alt="Nerissa, the sea witch">', pix:'<img src="quest/nerissa-pix.png?v=1" alt="" class="qpx">'},
+  kelpie: {full:'<img src="quest/kelpie-full.jpg?v=1" alt="Kelpie, the leafy sea dragon">', pix:'<img src="quest/kelpie-pix.png?v=1" alt="" class="qpx">'},
+  empress: {full:'<img src="quest/empress-full.jpg?v=1" alt="The Coral Empress">', pix:'<img src="quest/empress-pix.png?v=1" alt="" class="qpx">'}
 });
