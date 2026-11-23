@@ -1,6 +1,6 @@
-# Two Little Fish: setup guide
+# PixelLove: setup guide
 
-This turns Two Little Fish into your own home-screen app that saves everything, syncs between your two phones and sends push notifications.
+This turns PixelLove into your own home-screen app that saves everything, syncs between your two phones and sends push notifications.
 
 It takes about 30–45 minutes the first time. You only do it once.
 
@@ -19,7 +19,7 @@ You'll start fresh here. Nothing from the Claude version carries over.
 
 1. Go to **console.firebase.google.com** and sign in with a Google account.
 2. Click **Create a project** (or **Add project**). Name it something like `two-little-fish`. You can turn off Google Analytics.
-3. On the project's home page, click the **web icon `</>`** to add a web app. Name it `Two Little Fish`. You don't need Firebase Hosting, because you're using GitHub.
+3. On the project's home page, click the **web icon `</>`** to add a web app. Name it `PixelLove`. You don't need Firebase Hosting, because you're using GitHub.
 4. Firebase shows you a block of code with `const firebaseConfig = { ... }`. Copy each value into `site/config.js`, replacing every `PASTE_...`:
    - `apiKey`
    - `authDomain`
