@@ -1,0 +1,5 @@
+# Never upload these: npm recreates them, and logs can be large
+node_modules/
+firebase-debug.log
+*.log
+.DS_Store

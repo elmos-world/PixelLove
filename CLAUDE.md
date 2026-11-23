@@ -6,16 +6,18 @@ A cozy, pastel, pixel-arcade-style app for a long-distance couple (Thorunn and D
 
 | Path | What it is |
 |---|---|
-| `site/index.html` | The whole app: HTML, CSS and JS in one file. This is what gets edited most. |
-| `site/config.js` | Firebase web config and VAPID key (`self.FIREBASE_CONFIG`, `self.VAPID_KEY`). Not secret. |
-| `site/firebase-messaging-sw.js` | Service worker that receives push notifications. |
-| `site/manifest.webmanifest`, `site/icon-*.png`, `site/apple-touch-icon.png` | Home-screen app metadata and pixel-goldfish icons. |
+| `index.html` | The whole app: HTML, CSS and JS in one file. This is what gets edited most. |
+| `config.js` | Firebase web config and VAPID key (`self.FIREBASE_CONFIG`, `self.VAPID_KEY`). Not secret. |
+| `firebase-messaging-sw.js` | Service worker that receives push notifications. |
+| `manifest.webmanifest`, `icon-*.png`, `apple-touch-icon.png` | Home-screen app metadata and pixel-goldfish icons. |
 | `firebase/firestore.rules` | Locks all data to the two allowed emails (`isUs()`). |
 | `firebase/functions/index.js` | Cloud Functions (v2) that send pushes, plus a 10-minute schedule for bottles washing up and a hungry pet. |
 | `firebase/functions/.env` | `APP_URL` (GitHub Pages address, trailing slash). |
 | `SETUP.md` | User-facing setup guide. Keep it in sync when setup steps change. |
 
-GitHub Pages serves the contents of `site/` at the repository root (or from `/docs` if the repo is arranged that way). Check where the live files actually sit before moving anything.
+The app files sit at the repository root, and GitHub Pages serves them from there. Firebase files live in `firebase/`, which is just stored alongside the app. Never commit `node_modules` (see `.gitignore`).
+
+`firebase/firestore.rules` in this public repository keeps placeholder emails on purpose. The real rules, with the two real emails, live only in the Firebase console, so don't deploy rules from this copy without putting the real emails in first.
 
 ## How the data layer works
 
@@ -55,5 +57,6 @@ There's no build step. To test locally, serve `site/` (for example `python3 -m h
 
 ## Deploying
 
-- App changes: commit the changed files under `site/` and GitHub Pages updates within a couple of minutes.
-- Rules or functions changes: from `firebase/`, run `firebase deploy --only functions,firestore:rules`. Functions need the Blaze plan.
+- App changes: commit the changed app files at the repository root, and GitHub Pages updates within a couple of minutes.
+- Functions changes: from `firebase/functions`, run `npm install`, then from `firebase/`, run `firebase deploy --only functions --project fishies-14ec2`. Functions need the Blaze plan and Node.js 22.
+- Rules changes: edit them in the Firebase console, or deploy from a local copy that has the real emails.
