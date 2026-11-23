@@ -60,6 +60,37 @@ exports.onBottle = onDocumentCreated('bottles/{id}', async e => {
   await e.data.ref.update({notified: false}); // the schedule below delivers it when it washes up
 });
 
+exports.onTape = onDocumentCreated('tapes/{id}', async e => {
+  const d = e.data.data(); await notify(d.by, `${await nameOf(d.by)} sent you a voice tape 📼`, clip(d.label) || 'Tap to listen', 'tape');
+});
+exports.onPlace = onDocumentCreated('places/{id}', async e => {
+  const d = e.data.data(); await notify(d.by, `${await nameOf(d.by)} added a place to your bucket list`, clip(d.name), 'place');
+});
+exports.onSurprise = onDocumentCreated('surprises/{id}', async e => {
+  const d = e.data.data(); await notify(d.by, `${await nameOf(d.by)} sealed a surprise for you 💌`, 'No peeking until the day!', 'surprise');
+});
+
+/* Sunday evening: the weekly postcard is ready. */
+exports.sundayPostcard = onSchedule({schedule: '0 18 * * 0', timeZone: 'America/Chicago'}, async () => {
+  await notify(null, 'Your Sunday postcard is here 💌', 'See your week together on the Memories page', 'postcard');
+});
+
+/* Every morning: Valentine's Day, birthdays and your anniversary. */
+exports.specialDays = onSchedule({schedule: '0 9 * * *', timeZone: 'America/Chicago'}, async () => {
+  const s = (await db.doc('shared/settings').get()).data() || {};
+  const [, m, d] = new Intl.DateTimeFormat('en-CA', {timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit'}).format(new Date()).split('-').map(Number);
+  const y = Number(new Intl.DateTimeFormat('en-CA', {timeZone: 'America/Chicago', year: 'numeric'}).format(new Date()));
+  const md = v => { const p = String(v || '').split('-').map(Number); return p.length === 3 ? p : null; };
+  if (m === 2 && d === 14) await notify(null, 'Happy Valentine’s Day! 💘', 'Open the app for your gift and a surprise', 'holiday');
+  for (const S of ['A', 'B']) {
+    const b = md(s['bday' + S]);
+    const n = s['name' + S];
+    if (b && b[1] === m && b[2] === d) await notify(null, n ? `It’s ${n}’s birthday! 🎂` : 'It’s a birthday! 🎂', 'Open the app for your gift and a surprise', 'holiday');
+  }
+  const t = md(s.since);
+  if (t && t[1] === m && t[2] === d && y > t[0]) await notify(null, `Happy ${y - t[0]}-year anniversary! 💞`, 'Open the app for your gift and a surprise', 'holiday');
+});
+
 /* Every 10 minutes: bottles that have washed up, and a hungry pet. */
 exports.everyTenMinutes = onSchedule('every 10 minutes', async () => {
   const now = Date.now();
