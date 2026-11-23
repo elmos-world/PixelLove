@@ -171,9 +171,9 @@ function render(){
 }
 function topBar(back){ return `<div class="qtop">${back?'<button type="button" class="ghost qback" data-q="home">◀ Back</button>':'<h2 class="qtitle">Sea Quest</h2>'}<div class="qcurs">${cur('gold',Q.gold)}${cur('dust',Q.dust)}${cur('pearls',Q.pearls)}</div></div>`; }
 function renderStarter(R){
-  R.innerHTML=`<div class="card qstart"><h2>Choose your first companion</h2><p class="lede">Every adventure starts with a friend. Pick one to begin. You can find the others later.</p>
+  R.innerHTML=`<div class="card qstart"><h2>Choose your first hero</h2><p class="lede">Every adventure starts with a hero. Pick one to begin. You can summon the others later.</p>
     <div class="qstarters">${STARTERS.map(id=>{ const h=HEROES[id]; return `<button type="button" class="qcard" data-starter="${id}"><div class="qpix">${art(id,'pix')}</div><b>${h.n}</b><span>${h.ti}</span>${elChip(h.el)}</button>`; }).join('')}</div>
-    <p class="sub" style="font-size:14px">You also get 500 pearls to summon more friends.</p></div>`;
+    <p class="sub" style="font-size:14px">You also get 500 pearls to summon more heroes.</p></div>`;
 }
 function scene(ids, enemies, zone){
   const side=(list,right)=>list.map((id,i)=>`<div class="qsp ${right?'r':''}" style="--i:${i}">${art(id,'pix')}</div>`).join('');
@@ -189,23 +189,23 @@ function renderHome(R){
     <p class="sub qrate">Earning ${rates.gold} gold, ${rates.dust} dust and ${rates.pearls} pearls an hour, even while you’re away.</p></div>
   <div class="card qstage"><div class="qrow"><div><span class="sub">${next.zone.n}</span><h3>Stage ${next.label}${next.boss?' · <em class="qboss">BOSS</em>':''}</h3></div><div class="qpow">Power <b>${fmt(teamPower())}</b></div></div>
     <div class="qfoes">${next.enemies.map(e=>`<div class="qfoe ${MONSTERS[e.id].boss?'boss':''}">${art(e.id,'pix')}<span>Lv ${e.lv}</span></div>`).join('')}</div>
-    <button type="button" class="main qbig" data-q="fight" ${Q.team.length?'':'disabled'}>${Q.team.length?'Battle!':'Add a creature to your team first'}</button>
+    <button type="button" class="main qbig" data-q="fight" ${Q.team.length?'':'disabled'}>${Q.team.length?'Battle!':'Add a hero to your team first'}</button>
     ${next.boss?'<p class="sub" style="font-size:13px;margin:6px 0 0">Beating a zone boss also earns 20 PixelLove coins.</p>':''}</div>
-  <div class="qnav"><button type="button" data-q="team">Team & creatures</button><button type="button" data-q="summon">Summon</button></div>`;
+  <div class="qnav"><button type="button" data-q="team">Team & heroes</button><button type="button" data-q="summon">Summon</button></div>`;
 }
 function heroCard(id, extra=''){ const h=HEROES[id], o=Q.roster[id];
   return `<button type="button" class="qcard ${o?'':'locked'} r${h.r}" data-hero="${id}">${o&&Q.team.includes(id)?`<i class="qslot">${Q.team.indexOf(id)+1}</i>`:''}<div class="qpix">${art(id,'pix')}</div><b>${o?h.n:'???'}</b>${stars(h.r)}${o?`<span>${o.ev?'<i class="qevb">'+'✦'.repeat(o.ev)+'</i> ':''}Lv ${o.lv}${plus(o.st)}${o.cp&&o.st<5&&o.cp>=o.st?' <i class="qup">▲</i>':''}</span>`:''}${elChip(h.el)}${extra}</button>`; }
 function renderTeam(R){
   const ids=Object.keys(HEROES).sort((a,b)=>(own(b)-own(a))||(HEROES[b].r-HEROES[a].r));
   R.innerHTML=topBar(true)+`<div class="card"><div class="qrow"><h3 style="margin:0">Your team</h3><div class="qpow">Power <b>${fmt(teamPower())}</b></div></div>
-    <p class="sub" style="font-size:14px;margin:4px 0 8px">Up to 5. The first two stand in front. Tap a creature to see it, level it up or add it to your team.</p>
+    <p class="sub" style="font-size:14px;margin:4px 0 8px">Up to 5. The first two stand in front. Tap a hero to see them, level them up or add them to your team.</p>
     <div class="qteam">${[0,1,2,3,4].map(i=>{ const id=Q.team[i]; return id?`<button type="button" class="qtm" data-hero="${id}"><div class="qpix">${art(id,'pix')}</div><span>${i<2?'Front':'Back'}</span></button>`:`<div class="qtm empty"><span>${i<2?'Front':'Back'}</span></div>`; }).join('')}</div></div>
-    <div class="card"><h3 style="margin:0 0 8px">Creatures · ${Object.keys(Q.roster).length}/${Object.keys(HEROES).length}</h3><div class="qgrid">${ids.map(id=>heroCard(id)).join('')}</div></div>`;
+    <div class="card"><h3 style="margin:0 0 8px">Heroes · ${Object.keys(Q.roster).length}/${Object.keys(HEROES).length}</h3><div class="qgrid">${ids.map(id=>heroCard(id)).join('')}</div></div>`;
 }
 function statRow(l,v){ return `<div><span>${l}</span><b>${fmt(v)}</b></div>`; }
 function renderHero(R){
   const id=qHero, h=HEROES[id], o=Q.roster[id]; if(!h){ qScreen='team'; return render(); }
-  if(!o){ R.innerHTML=topBar(true)+`<div class="card qhero"><div class="qfull locked">${art(id,'full')}</div><h2>???</h2><p class="lede">A ${RAR[h.r][0]} ${EL[h.el][0]} character you haven’t met yet. Find them by summoning.</p></div>`; return; }
+  if(!o){ R.innerHTML=topBar(true)+`<div class="card qhero"><div class="qfull locked">${art(id,'full')}</div><h2>???</h2><p class="lede">A ${RAR[h.r][0]} ${EL[h.el][0]} hero you haven’t met yet. Find them by summoning.</p></div>`; return; }
   const ev=o.ev||0, cap=capOf(o), s=heroStats(id,o.lv,o.st,ev), c=lvCost(o.lv), canLv=o.lv<cap&&Q.gold>=c.gold&&Q.dust>=c.dust, inT=Q.team.includes(id);
   const view=Math.min(qArtView===null?ev:qArtView,2), vLocked=view>ev, ec=EVCOST[ev], canEv=ev<2&&o.lv>=cap&&Q.gold>=ec.gold&&Q.dust>=ec.dust;
   R.innerHTML=topBar(true)+`<div class="card qhero"><div class="qfull ${vLocked?'locked':''}" style="--ec:${EL[h.el][1]}">${art(id,'full',view)}${vLocked?`<span class="qlockmsg">🔒 Evolve to ${EVN[view]} to unlock</span>`:view>0&&!hasArt(id,'full',view)?'<span class="qlockmsg soft">New art for this stage is coming</span>':''}</div>
@@ -220,7 +220,7 @@ function renderHero(R){
     <button type="button" class="${inT?'ghost':'main'} qbig" data-q="toggleteam">${inT?'Remove from team':Q.team.length>=5?'Team is full (5)':'Add to team'}</button></div>`;
 }
 function renderSummon(R, results){
-  R.innerHTML=topBar(true)+`<div class="card qsummon"><h2>Pearl shrine</h2><p class="lede">Offer pearls to the giant clam and a new friend swims out. Getting someone you already have gives you a copy. Use copies on their page to upgrade them (up to +4).</p>
+  R.innerHTML=topBar(true)+`<div class="card qsummon"><h2>Pearl shrine</h2><p class="lede">Offer pearls to the giant clam and a new hero swims out. Getting someone you already have gives you a copy. Use copies on their page to upgrade them (up to +4).</p>
     <div class="qclam ${results?'open':''}"><svg viewBox="0 0 64 44" shape-rendering="crispEdges"><g class="qclamtop"><path d="M6 24 C6 8 58 8 58 24z" fill="#ffd3e3"/><path d="M14 22 L20 10 M26 22 L28 8 M38 22 L36 8 M50 22 L44 10" stroke="#ffb3c7" stroke-width="3"/></g><circle cx="32" cy="26" r="7" fill="#fff"/><circle cx="30" cy="24" r="2" fill="#e9f6ff"/><path d="M6 26 h52 C56 40 8 40 6 26z" fill="#ffb3c7"/></svg></div>
     <p class="sub" style="font-size:13px;margin:0">3★ 65% · 4★ 28% · 5★ 7% · a 5★ is guaranteed within 40 summons (${40-Q.pity} to go)</p>
     <div class="row" style="justify-content:center;margin-top:12px"><button type="button" class="main" data-q="sum1" ${Q.pearls<100?'disabled':''}>Summon ×1 · 100 ${ICO.pearls}</button><button type="button" class="main" data-q="sum10" ${Q.pearls<900?'disabled':''}>×10 · 900 ${ICO.pearls}</button></div>
@@ -285,7 +285,7 @@ function finish(){
       <div class="row" style="justify-content:center"><button type="button" class="ghost" data-qb="close">Done</button><button type="button" class="main" data-qb="next">Next stage</button></div>`;
     sfx('unlock'); confetti(st.boss?90:40);
   } else {
-    html=`<h2 class="qlose">Defeated…</h2><p>The monsters were too strong this time.</p><p class="sub">Collect your AFK rewards, level up your creatures, or summon new friends, then try again.</p>
+    html=`<h2 class="qlose">Defeated…</h2><p>The monsters were too strong this time.</p><p class="sub">Collect your AFK rewards, level up your heroes, or summon new ones, then try again.</p>
       <div class="row" style="justify-content:center"><button type="button" class="ghost" data-qb="close">Back</button><button type="button" class="main" data-qb="team">Level up</button></div>`;
     sfx('pop');
   }
@@ -296,7 +296,7 @@ function finish(){
 /* ---------- wiring ---------- */
 document.addEventListener('click',e=>{
   const R=root(); if(!R||!R.contains(e.target)) return;
-  const s=e.target.closest('[data-starter]'); if(s){ const id=s.dataset.starter; Q=normQ(Q); Q.starter=id; Q.roster[id]={lv:1,st:1}; Q.team=[id]; Q.idleAt=Date.now(); saveQ(); sfx('unlock'); confetti(50); toast(`${HEROES[id].n} joined you! Summon more friends at the Pearl shrine.`); qScreen='home'; render(); return; }
+  const s=e.target.closest('[data-starter]'); if(s){ const id=s.dataset.starter; Q=normQ(Q); Q.starter=id; Q.roster[id]={lv:1,st:1}; Q.team=[id]; Q.idleAt=Date.now(); saveQ(); sfx('unlock'); confetti(50); toast(`${HEROES[id].n} joined you! Summon more heroes at the Pearl shrine.`); qScreen='home'; render(); return; }
   const ar=e.target.closest('[data-qart]'); if(ar){ qArtView=+ar.dataset.qart; render(); return; }
   const h=e.target.closest('[data-hero]'); if(h){ qHero=h.dataset.hero; qArtView=null; qScreen='hero'; render(); window.scrollTo(0,0); return; }
   const q=e.target.closest('[data-q]'); if(q&&!q.disabled) act(q.dataset.q);
