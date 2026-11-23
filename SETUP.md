@@ -138,7 +138,7 @@ Your Firebase settings in `config.js` aren't secret, and it's fine that people c
 
 ## Home-screen widget (iPhone)
 
-iPhones only allow widgets from App Store apps, so PixelLove's widget runs in **Scriptable**, a free App Store app. It shows your countdown, your person's time and mood weather, the song they picked, their latest love note, and how your pet fish is doing. Tap it to open PixelLove. It refreshes about every 15 minutes (iOS decides the exact timing).
+iPhones only allow widgets from App Store apps, so PixelLove's widget runs in **Scriptable**, a free App Store app. It shows your countdown, your person's time and mood weather, the song they picked, their latest love note, their newest pixel doodle (medium and large sizes), and how your pet fish is doing. Tap it to open PixelLove. It refreshes about every 15 minutes (iOS decides the exact timing).
 
 1. Install **Scriptable** from the App Store.
 2. On your phone, open `widget/pixellove-widget.js` in this repository on GitHub, tap the **⋯** or **Raw** button, and copy all of it.
