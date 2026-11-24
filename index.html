@@ -737,6 +737,19 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 @keyframes pinbob{50%{transform:translateY(-3px)}}
 @keyframes pbub{0%{transform:translateY(0);opacity:0}8%{opacity:1}86%{transform:translateY(-172px);opacity:1}92%,100%{transform:translateY(-176px);opacity:0}}
 </style>
+<style>
+/* draw together */
+.lwrap{position:relative;width:100%;max-width:330px}
+.lwrap .dpad{display:block;max-width:none}
+.lpen{position:absolute;width:0;height:0;pointer-events:none;transition:left .3s steps(3),top .3s steps(3)}
+.lpen b{position:absolute;left:4px;top:-30px;display:grid;place-items:center;width:22px;height:22px;font-family:var(--pixel);font-size:12px;color:#fff;background:var(--pc,#ff6b8f);box-shadow:0 0 0 2px #fff,0 0 0 4px #3d3762}
+.lpen::before{content:"";position:absolute;left:-3px;top:-3px;width:6px;height:6px;background:#3d3762;box-shadow:0 0 0 2px #fff}
+@media(prefers-reduced-motion:no-preference){.lpen b{animation:pinbob 1s steps(2) infinite}}
+@media(prefers-reduced-motion:reduce){.lpen{transition:none}}
+.ldot{display:inline-block;width:10px;height:10px;margin-right:8px;background:#c9c4e6;vertical-align:1px}
+.ldot.on{background:#5fb88a}
+@media(prefers-reduced-motion:no-preference){.ldot.on{animation:blink 1.2s steps(1) infinite}}
+</style>
 </head>
 <body>
 <div id="gate">
@@ -978,6 +991,15 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
     <canvas id="dPad" width="240" height="240" class="dpad" aria-label="Drawing pad"></canvas>
     <div class="dpal" id="dPal"></div>
     <div class="row" style="justify-content:center"><button type="button" class="ghost" id="dFill" aria-pressed="false">Fill</button><button type="button" class="ghost" id="dUndo">Undo</button><button type="button" class="ghost" id="dClear">Clear</button><button type="button" class="main" id="dSend">Send</button></div>
+  </div>
+</div>
+<div class="card" id="drawCard">
+  <h2>Draw together</h2>
+  <p class="lede" id="lStatus"></p>
+  <div class="dpadwrap">
+    <div class="lwrap"><canvas id="lPad" width="320" height="320" class="dpad" aria-label="Shared drawing canvas"></canvas><div class="lpen" id="lPen" hidden><b></b></div></div>
+    <div class="dpal" id="lPal"></div>
+    <div class="row" style="justify-content:center"><button type="button" class="ghost" id="lUndo">Undo mine</button><button type="button" class="ghost" id="lClear">Clear</button><button type="button" class="main" id="lSave">Save to memories</button></div>
   </div>
 </div>
 <div class="card">
@@ -1741,6 +1763,71 @@ function renderDoodles(){
   }catch(e){}
 }
 dPalUI(); dDraw();
+
+/* draw together: one shared canvas, live for both of you */
+const LN=32;
+let lFly={}, lLastCell=-1, lGrid=Array(LN*LN).fill('.'), lPend={}, lTool=2, lStrokes=[], lCur=null, lLast=null, lFlushT=null, lPens={}, lClearArm=0, lCleared=0, lLoaded=false;
+function lDraw(){
+  const c=$('lPad'); if(!c) return; const x=c.getContext('2d'), s=c.width/LN; x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height);
+  lGrid.forEach((v,i)=>{ if(v!=='.'){ x.fillStyle=DPAL[DCH.indexOf(v)]||'#3d3762'; x.fillRect((i%LN)*s,Math.floor(i/LN)*s,s,s); } });
+  x.strokeStyle='rgba(61,55,98,.07)'; x.lineWidth=1; for(let k=1;k<LN;k++){ x.beginPath(); x.moveTo(k*s+.5,0); x.lineTo(k*s+.5,c.height); x.moveTo(0,k*s+.5); x.lineTo(c.width,k*s+.5); x.stroke(); }
+}
+function lPalUI(){ $('lPal').innerHTML=DPAL.map((c,i)=>`<button type="button" data-lc="${i}" aria-label="Color ${i+1}" aria-pressed="${lTool===i}" style="background:${c}"></button>`).join('')+`<button type="button" class="erase" data-lc="-1" aria-label="Eraser" aria-pressed="${lTool===-1}"></button>`; }
+function lOther(){ const [a,b]=sides(); return me===a?b:a; }
+function lStatus(){
+  const el=$('lStatus'); if(!el) return; const o=lOther(), p=o&&lPens[o], drawing=p&&Date.now()-p.at<5000;
+  el.innerHTML = drawing ? `<i class="ldot" style="background:${DPAL[p.c]||'#ff6b8f'}"></i>${esc(otherName())} is drawing right now!`
+    : togetherNow() ? `<i class="ldot on"></i>${esc(otherName())} is in the app. Draw together!`
+    : `<i class="ldot"></i>${esc(otherName())} isn’t here right now. Whatever you draw will be waiting.`;
+  const pen=$('lPen'); if(!pen) return;
+  if(drawing&&p.i>=0&&p.i<LN*LN){ pen.hidden=false; pen.style.left=((p.i%LN+.5)/LN*100)+'%'; pen.style.top=((Math.floor(p.i/LN)+.5)/LN*100)+'%'; pen.style.setProperty('--pc',DPAL[p.c]||'#ff6b8f'); pen.querySelector('b').textContent=(otherName()||'?').slice(0,1).toUpperCase(); }
+  else pen.hidden=true;
+}
+function lCell(e){ const r=$('lPad').getBoundingClientRect(), cx=Math.floor((e.clientX-r.left)/r.width*LN), cy=Math.floor((e.clientY-r.top)/r.height*LN); return (cx<0||cy<0||cx>=LN||cy>=LN)?null:[cx,cy]; }
+function lPut(cx,cy){ const i=cy*LN+cx, ch=lTool<0?'.':DCH[lTool]; if(lGrid[i]===ch) return; if(lCur&&!(i in lCur)) lCur[i]=lGrid[i]; lGrid[i]=ch; lPend[i]=ch; lLastCell=i; }
+function lQueue(){ if(!lFlushT) lFlushT=setTimeout(lFlush,350); }
+async function lFlush(){
+  lFlushT=null; const ch=lPend; lPend={}; const keys=Object.keys(ch); const at=Date.now(); if(db) Object.assign(lFly, ch);
+  if(db && lLastCell>=0) db.doc('pens/'+me).set({i:lLastCell, c:Math.max(0,lTool), at}).catch(()=>{});
+  if(!keys.length||!db) return;
+  const up={at, by:me}; keys.forEach(k=>up['cells.'+k]=ch[k]);
+  const land=()=>{ keys.forEach(k=>{ if(lFly[k]===ch[k]) delete lFly[k]; }); };
+  try{ await db.doc('shared/canvas').update(up); land(); }
+  catch(e){ try{ const cells={}; lGrid.forEach((v,i)=>{ if(v!=='.') cells[i]=v; }); await db.doc('shared/canvas').set({cells, at, by:me, clearedAt:lCleared}); land(); }catch(x){ land(); lPend={...ch, ...lPend}; fail(x); } }
+}
+function lApply(d){
+  const cells=(d&&d.cells&&typeof d.cells==='object')?d.cells:{}, g=Array(LN*LN).fill('.');
+  for(const k in cells){ const i=+k, v=cells[k]; if(i>=0&&i<LN*LN&&typeof v==='string'&&(v==='.'||DCH.includes(v))) g[i]=v; }
+  for(const k in lFly) g[+k]=lFly[k];
+  for(const k in lPend) g[+k]=lPend[k];
+  const cl=+(d&&d.clearedAt)||0;
+  if(lLoaded && cl>lCleared && d.clearedBy&&d.clearedBy!==me){ toast(`${otherName()} cleared the canvas`); lStrokes=[]; }
+  lCleared=Math.max(lCleared,cl); lGrid=g; lLoaded=true; lDraw();
+}
+$('lPad').addEventListener('pointerdown',e=>{ const c=lCell(e); if(!c) return; e.preventDefault(); try{ $('lPad').setPointerCapture(e.pointerId); }catch(x){}
+  lCur={}; lPut(...c); lLast=c; lDraw(); lQueue(); });
+$('lPad').addEventListener('pointermove',e=>{ if(!lLast) return; const c=lCell(e); if(!c) return; const [x0,y0]=lLast, n=Math.max(Math.abs(c[0]-x0),Math.abs(c[1]-y0));
+  for(let k=1;k<=n;k++) lPut(Math.round(x0+(c[0]-x0)*k/n), Math.round(y0+(c[1]-y0)*k/n)); lLast=c; lDraw(); lQueue(); });
+addEventListener('pointerup',()=>{ if(!lLast) return; lLast=null; if(lCur&&Object.keys(lCur).length){ lStrokes.push(lCur); if(lStrokes.length>30) lStrokes.shift(); } lCur=null; lQueue(); });
+$('lPal').addEventListener('click',e=>{ const b=e.target.closest('[data-lc]'); if(!b) return; lTool=+b.dataset.lc; lPalUI(); });
+$('lUndo').addEventListener('click',()=>{ const s=lStrokes.pop(); if(!s){ toast('Nothing of yours to undo'); return; } for(const k in s){ lGrid[+k]=s[k]; lPend[k]=s[k]; } lDraw(); lQueue(); });
+$('lClear').addEventListener('click',()=>{
+  if(Date.now()-lClearArm>4000){ lClearArm=Date.now(); $('lClear').textContent='Tap again to clear'; setTimeout(()=>{ if($('lClear')) $('lClear').textContent='Clear'; },4000); return; }
+  lClearArm=0; $('lClear').textContent='Clear'; const at=Date.now(); lCleared=at; lPend={}; lFly={}; lStrokes=[]; lGrid=Array(LN*LN).fill('.'); lDraw();
+  if(db) db.doc('shared/canvas').set({cells:{}, at, by:me, clearedAt:at, clearedBy:me}).catch(fail); sfx('pop');
+});
+$('lSave').addEventListener('click',async()=>{
+  if(lGrid.every(v=>v==='.')){ toast('Draw something together first!'); return; }
+  const c=document.createElement('canvas'), s=20; c.width=c.height=LN*s; const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height);
+  lGrid.forEach((v,i)=>{ if(v!=='.'){ x.fillStyle=DPAL[DCH.indexOf(v)]; x.fillRect((i%LN)*s,Math.floor(i/LN)*s,s,s); } });
+  const blob=await new Promise(r=>c.toBlob(r,'image/png')); if(!blob){ toast('Couldn’t save the drawing'); return; }
+  const caption='Drawn together ♥';
+  if(!db||!assets){ add('photos',{url:URL.createObjectURL(blob), caption, by:me, at:Date.now()}); }
+  else { try{ const r=await assets.upload(blob); await add('photos',{asset:r.id, url:r.url, caption, by:me, at:Date.now()}); }catch(e){ toast('Couldn’t save the drawing. Try again.'); return; } }
+  toast('Pinned to your memories 📌'); sfx('unlock'); sparkle();
+});
+setInterval(()=>{ if(curView==='love') lStatus(); },1500);
+lPalUI(); lDraw();
 
 
 /* coins, tasks and the tank shop */
@@ -3073,6 +3160,8 @@ renderExtras.ready=true; renderRec(); renderExtras();
   db.collection('places').orderBy('at','desc').limit(200).onSnapshot(s=>{ places=rows(s); pcReady.add('places'); renderBucket(); renderMap(); resolveNames(places.map(p=>p.by)); }, err);
   db.collection('surprises').onSnapshot(s=>{ surprises=byId(s); renderHoli(); }, err);
   db.collection('postcards').orderBy('week','desc').limit(60).onSnapshot(s=>{ postcards=byId(s); pcReady.add('postcards'); renderPostcards(); ensurePostcard(); }, err);
+  db.doc('shared/canvas').onSnapshot(s=>{ lApply(s.exists?s.data():null); }, err);
+  db.collection('pens').onSnapshot(s=>{ lPens=byId(s); lStatus(); }, err);
   db.doc('shared/stickers').onSnapshot(s=>{ stk=s.exists?(s.data()||{}):{}; renderStickers(); }, err);
   setTimeout(()=>{ ['notes','photos','coins','bottles'].forEach(k=>pcReady.add(k)); ensurePostcard(); }, 8000);
   setInterval(()=>{ renderFeed(); renderMood(); renderPet(); },60000);
