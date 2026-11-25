@@ -700,6 +700,10 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
 .stktray{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom));z-index:26;width:min(600px,calc(100% - 24px));background:#fff;padding:12px 14px;max-height:46vh;overflow:auto;
   box-shadow:0 -4px 0 0 #3d3762,0 4px 0 0 #3d3762,-4px 0 0 0 #3d3762,4px 0 0 0 #3d3762,4px 10px 0 0 rgba(61,55,98,.22)}
 .stktray[hidden]{display:none}
+.stkbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.stktray.min{padding:8px 12px;overflow:hidden}
+.stktray.min p,.stktray.min .stkgrid{display:none}
+.stk-dragging .stktray{opacity:.25;pointer-events:none}
 .stktray .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .stktray h3{margin:0;font-size:18px}
 .stktray p{margin:4px 0 8px;font-size:13px;color:var(--soft,#7a76b8)}
@@ -1108,7 +1112,7 @@ body.pk-water{--pkico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/20
   <p class="lede" id="hdFrom" style="text-align:center"></p><div class="letterpaper"><p id="hdText"></p></div>
   <div class="row" style="justify-content:center;margin-top:12px"><button class="main" id="hdClose">Close</button></div></dialog>
 <button type="button" class="stkfab" id="stkFab" aria-label="Stickers" aria-pressed="false"><svg viewBox="0 0 11 10" shape-rendering="crispEdges"><rect x="1" y="1" width="2" height="1" fill="#e8466f"/><rect x="6" y="1" width="2" height="1" fill="#e8466f"/><rect x="0" y="2" width="9" height="3" fill="#ff8fb4"/><rect x="1" y="2" width="1" height="1" fill="#fff"/><rect x="1" y="5" width="7" height="1" fill="#ff8fb4"/><rect x="2" y="6" width="5" height="1" fill="#ff8fb4"/><rect x="3" y="7" width="3" height="1" fill="#ff8fb4"/><rect x="4" y="8" width="1" height="1" fill="#ff8fb4"/><rect x="7" y="6" width="3" height="1" fill="#ffd95a"/><rect x="8" y="5" width="1" height="3" fill="#ffd95a"/></svg></button>
-<div class="stktray" id="stkTray" hidden><div class="top"><h3>Stickers</h3><button type="button" class="main" id="stkDone">Done</button></div><p>Tap a sticker to add it to this page, then drag it anywhere. Tap × to peel one off. Unlock more with coins or by doing things together.</p><div class="stkgrid" id="stkGrid"></div></div>
+<div class="stktray" id="stkTray" hidden><div class="top"><h3>Stickers</h3><div class="stkbtns"><button type="button" class="ghost" id="stkMin" aria-expanded="true">Hide tray</button><button type="button" class="main" id="stkDone">Done</button></div></div><p>Tap a sticker to add it to this page, then drag it anywhere. Tap × to peel one off. Unlock more with coins or by doing things together.</p><div class="stkgrid" id="stkGrid"></div></div>
 <div class="toast" id="toast" role="status"></div>
 <div class="startscr" id="startScr" hidden role="button" tabindex="0" aria-label="Press start">
   <div class="marq"><h1 class="slogo">PIXELLOVE</h1>
@@ -2312,19 +2316,26 @@ function setPending(lat,lng,label){
   pendingMk=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div class="pin pend"><svg viewBox="0 0 12 12" shape-rendering="crispEdges"><path fill="#ffd95a" d="M4 0h4v1h1v1h1v4h-1v2h-1v2h-1v1h-2v-1h-1v-2h-1v-2h-1v-4h1v-1h1z"/><path fill="#fff" d="M5 3h2v2h-2z"/></svg></div>',iconSize:[36,36],iconAnchor:[18,36]})}).addTo(map);
   $('setHome').textContent='Set my home at this pin';
 }
+let locsReady=false;
 function myLoc(){ const l=locs[me]||{}; return {home:l.home||null, live:l.live||null}; }
+/* write just the changed field, so a live-location update can never wipe the saved home pin */
+async function saveLoc(patch){
+  locs[me]={...(locs[me]||{}), ...patch}; renderMap(); renderSkies(); if(!db) return;
+  try{ await db.doc('locations/'+me).update(patch); }
+  catch(e){ try{ await db.doc('locations/'+me).set({...myLoc(), ...patch}); }catch(x){ fail(x); } }
+}
 $('mapFind').addEventListener('submit',async e=>{ e.preventDefault(); const q=$('mapSearch').value.trim(); if(!q||!MAPS||!map) return;
   try{ const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q),{headers:{'Accept-Language':'en'}}); const j=await r.json();
     if(!j.length){ toast('Couldn’t find that place'); return; } const f=j[0]; map.setView([+f.lat,+f.lon],13); setPending(+f.lat,+f.lon,f.display_name.split(',').slice(0,2).join(',')); }
   catch(x){ toast('Couldn’t search right now'); } });
 $('setHome').addEventListener('click',()=>{ if(!MAPS||!map) return;
   const c=pending||{lat:+map.getCenter().lat.toFixed(5),lng:+map.getCenter().lng.toFixed(5),label:''};
-  const next={...myLoc(), home:c, at:Date.now()}; setDoc('locations/'+me, next, ()=>{ locs[me]=next; });
+  saveLoc({home:c, at:Date.now()});
   if(pendingMk){ pendingMk.remove(); pendingMk=null; } pending=null; $('setHome').textContent='Set my home here'; fitted=false; renderMap(); toast('Home pin saved'); sfx('unlock'); sparkle(); });
 function writeLive(pos){
   const c={lat:+pos.coords.latitude.toFixed(5), lng:+pos.coords.longitude.toFixed(5), acc:Math.round(pos.coords.accuracy||0), at:Date.now()};
   if(liveLast && Date.now()-liveLast.at<45e3 && miles(liveLast,c)<0.05) return;
-  liveLast=c; const next={...myLoc(), live:c}; setDoc('locations/'+me, next, ()=>{ locs[me]=next; }); renderMap();
+  liveLast=c; saveLoc({live:c});
 }
 function startLive(quiet){
   if(!MAPS||!('geolocation' in navigator)){ if(!quiet) toast('Live location only works in your GitHub version of the app'); return; }
@@ -2333,7 +2344,7 @@ function startLive(quiet){
 }
 function stopLive(keepPref){
   if(liveWatch!=null) navigator.geolocation.clearWatch(liveWatch); liveWatch=null; liveLast=null;
-  if(!keepPref){ try{ localStorage.setItem('tlf-live','off'); }catch(e){} const next={...myLoc(), live:null}; setDoc('locations/'+me, next, ()=>{ locs[me]=next; }); }
+  if(!keepPref){ try{ localStorage.setItem('tlf-live','off'); }catch(e){} saveLoc({live:null}); }
   renderMap();
 }
 $('liveBtn').addEventListener('click',()=>{ if(liveWatch!=null) stopLive(); else startLive(); });
@@ -2982,7 +2993,9 @@ function renderTray(){
   if(el._h!==h){ el.innerHTML=h; el._h=h; }
 }
 function stkSave(pg, fn){ const cur=Array.isArray(stk[pg])?stk[pg]:[], next={...stk, [pg]:fn(cur)}; setDoc('shared/stickers', next, ()=>{ stk=next; }); }
-function setStkMode(on){ stkMode=on; $('stkTray').hidden=!on; $('stkFab').setAttribute('aria-pressed',String(on)); renderStickers(); if(on) sfx('tap'); }
+function stkMinimize(min){ $('stkTray').classList.toggle('min',min); $('stkMin').textContent=min?'Show stickers':'Hide tray'; $('stkMin').setAttribute('aria-expanded',String(!min)); }
+$('stkMin').addEventListener('click',()=>stkMinimize(!$('stkTray').classList.contains('min')));
+function setStkMode(on){ stkMode=on; $('stkTray').hidden=!on; if(on) stkMinimize(false); $('stkFab').setAttribute('aria-pressed',String(on)); renderStickers(); if(on) sfx('tap'); }
 $('stkFab').addEventListener('click',()=>setStkMode(!stkMode));
 $('stkDone').addEventListener('click',()=>setStkMode(false));
 document.addEventListener('click',e=>{
@@ -2990,7 +3003,7 @@ document.addEventListener('click',e=>{
     const arr=Array.isArray(stk[pg])?stk[pg]:[]; if(arr.length>=15){ toast('This page is full of stickers. Remove one first.'); return; }
     const r=v.getBoundingClientRect(), y=Math.max(20,Math.min(r.height-20, innerHeight*.4-r.top)), x=+(.3+Math.random()*.4).toFixed(4);
     const one={id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), s:a.dataset.stkadd, x, y:Math.round(y), r:Math.round(Math.random()*24-12), by:me};
-    stkSave(pg, arr=>[...arr, one]); sfx('pop'); toast('Drag it wherever you like'); return; }
+    stkSave(pg, arr=>[...arr, one]); sfx('pop'); stkMinimize(true); toast('Drag it wherever you like. Tap “Show stickers” for more.'); return; }
   const b=e.target.closest('[data-stkbuy]'); if(b){ const id=b.dataset.stkbuy, s=STK[id], c=myCoins(); if(!s||c.stk.includes(id)) return;
     if(balance()<s.p){ toast(`You need ${s.p} coins for that one`); return; }
     writeCoins({...c, spent:c.spent+s.p, stk:[...c.stk,id]}); toast(`${s.n} sticker unlocked!`); sfx('coin'); renderTray(); return; }
@@ -2998,9 +3011,9 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('pointerdown',e=>{
   if(!stkMode) return; const el=e.target.closest('.stk'); if(!el||e.target.closest('.stk-x')) return; e.preventDefault();
-  const [pg,id]=el.dataset.stk.split('|'), v=el.closest('.view'); try{ el.setPointerCapture(e.pointerId); }catch(x){} el.classList.add('drag');
+  const [pg,id]=el.dataset.stk.split('|'), v=el.closest('.view'); try{ el.setPointerCapture(e.pointerId); }catch(x){} el.classList.add('drag'); document.body.classList.add('stk-dragging');
   const move=ev=>{ const r=v.getBoundingClientRect(), x=Math.min(.97,Math.max(.03,(ev.clientX-r.left)/r.width)), y=Math.max(16,Math.min(r.height-16, ev.clientY-r.top)); el.style.left=(x*100).toFixed(2)+'%'; el.style.top=Math.round(y)+'px'; el._p={x,y}; };
-  const up=()=>{ el.removeEventListener('pointermove',move); el.removeEventListener('pointerup',up); el.removeEventListener('pointercancel',up); el.classList.remove('drag');
+  const up=()=>{ el.removeEventListener('pointermove',move); el.removeEventListener('pointerup',up); el.removeEventListener('pointercancel',up); el.classList.remove('drag'); document.body.classList.remove('stk-dragging');
     if(el._p){ const p=el._p; el._p=null; stkSave(pg, arr=>arr.map(s=>s.id===id?{...s, x:+p.x.toFixed(4), y:Math.round(p.y)}:s)); } };
   el.addEventListener('pointermove',move); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
 });
@@ -3053,8 +3066,8 @@ renderExtras.ready=true; renderRec(); renderExtras();
   db.collection('doodles').onSnapshot(s=>{ doodles=byId(s); renderDoodles(); }, err);
  
   startPresence();
-  db.collection('locations').onSnapshot(s=>{ locs=byId(s); renderMap(); renderSkies(); }, err);
-  try{ if(localStorage.getItem('tlf-live')==='on') startLive(true); }catch(e){}
+  db.collection('locations').onSnapshot(s=>{ locs=byId(s); renderMap(); renderSkies();
+    if(!locsReady){ locsReady=true; try{ if(localStorage.getItem('tlf-live')==='on') startLive(true); }catch(e){} } }, err);
   db.collection('bottles').orderBy('at','desc').limit(100).onSnapshot(s=>{ bottles=rows(s); pcReady.add('bottles'); renderBottles(); resolveNames(bottles.map(b=>b.by)); }, err);
   db.doc('shared/pet').onSnapshot(s=>{ pet=s.exists?s.data():null; renderPet(); }, err);
   db.doc('shared/pick').onSnapshot(s=>{ pick=s.exists?s.data():null; renderIdeas(); }, err);
